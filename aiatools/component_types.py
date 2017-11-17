@@ -1,0 +1,225 @@
+# -*- mode: python; coding: utf-8 -*-
+# Copyright © 2017 Massachusetts Institute of Technology, All rights reserved.
+
+"""
+The :py:mod:`aiatools.component_types` module defines the components for App Inventor. Component types are
+programmatically constructed during module compilation from the simple_components.json used to populate App Inventor's
+online development environment.
+"""
+
+import json
+import xml.etree.ElementTree as ETree
+
+import pkg_resources
+
+from aiatools.selectors import Selector, NamedCollection, Selectors
+from .common import *
+
+__author__ = 'Evan W. Patton <ewpatton@mit.edu>'
+
+
+# noinspection PyShadowingBuiltins
+class ComponentContainer(Component, Selectors):
+    """
+    :py:class:`ComponentContainer` models the App Inventor ComponentContainer class.
+
+    Parameters:
+        parent (ComponentContainer, optional): The parent of the container. May be None for :py:class:`.Screen`.
+        uuid (basestring): The UUID for the component container.
+        type (str): The type of the component container.
+        name (basestring): The name of the component container.
+        version (str): The version number of the component container's type at the time the project was last saved.
+        properties (dict[basestring, T], optional): The properties of the component as a dictionary. The values are
+                                                    dependent on the key (property).
+        components (list[Component], optional): A list of components contained by the container.
+    """
+    def __init__(self, parent, uuid, type, name, version, properties=None, components=None):
+        super(ComponentContainer, self).__init__(parent, uuid, type, name, version, properties)
+        self._children = [] if components is None else list(components)
+
+    def __iter__(self):
+        """
+        Iterate over the children of the container.
+
+        :return: An iterator over the container's children.
+        :rtype: collections.Iterable[Component]
+        """
+        return iter(self._children)
+
+    def itervalues(self):
+        """
+        Iterate over the values of this container. For :py:class:`ComponentContainer`, the values are the children
+        of the container.
+
+        :return: Iterator over the container's children.
+        :rtype: collections.Iterable[Component]
+        """
+        return iter(self)
+
+    def children(self):
+        """
+        Iterate over the child components in the container
+
+        :return: An iterator over the components in the container.
+        :rtype: collections.Iterable[Component]
+
+        .. versionadded:: 0.1
+        """
+        return self._children
+
+    def _components(self, *args, **kwargs):
+        items = {item.id: item for item in RecursiveIterator(self)}
+        items[self.id] = self
+        return Selector(NamedCollection(items)).components(*args, **kwargs)
+
+    @classmethod
+    def from_json(cls, parent, json_repr):
+        """
+        Constructs a :py:class:`ComponentContainer`
+
+        :param parent: The parent container of the new container.
+        :type parent: ComponentContainer
+        :param json_repr: The JSON representation of the component from the Screen definition.
+        :type json_repr: dict[str, T]
+        :return: A newly constructed ComponentContainer from the JSON representation.
+        :rtype: ComponentContainer
+        """
+        typename = json_repr['$Type']
+        if typename in globals():
+            type = globals()[typename]
+        else:
+            type = Extension(typename)
+        properties = {k: v for k, v in json_repr.iteritems() if k not in Component._DISALLOWED_KEYS}
+        container = cls(parent, json_repr['Uuid'], type, json_repr['$Name'], json_repr['$Version'], properties)
+        for component_description in json_repr['$Components']:
+            if '$Components' in component_description:
+                child = ComponentContainer.from_json(container, component_description)
+            else:
+                child = Component.from_json(container, component_description)
+            container._children.append(child)
+        return container
+
+    components = property(_components, doc="""
+    Returns a :py:class:`~aiatools.selectors.Selector` over the components in the container.
+    
+    :type: Selector[Component]
+    """)
+
+
+class Screen(ComponentContainer):
+    """
+    The :py:class:`Screen` class provides a Python representation of an App Inventor Screen.
+
+    The Screen object encapsulates both its descendant components and the blocks code prescribing the behavior of the
+    Screen's contents.
+
+    Parameters
+    ----------
+    name : basestring, optional
+        The name of the screen.
+    components : list[Component], optional
+        A list of immediate components that are the children of the screen.
+    form : basestring | file, optional
+        A pathanme or file-like that contains a Screen's Scheme (.scm) file.
+    blocks : basestring | file, optional
+        A pathname or file-like that contains a Screen's Blocks (.bky) file.
+    """
+    def __init__(self, name=None, components=None, form=None, blocks=None):
+        self.uuid = 0
+        self.name = name
+        self.path = name
+        self._children = components
+        self._blocks = NamedCollection()
+        self.ya_version = None
+        self.blocks_version = None
+        if form is not None:
+            form_contents = form.readlines()
+            if form_contents[1] != '$JSON\n':
+                raise RuntimeError('Unknown Screen format: %s' % form_contents[1])
+            form_json = json.loads(form_contents[2])
+            self.name = name or form_json['Properties']['$Name']
+            super(Screen, self).__init__(parent=None,
+                                         uuid=form_json['Properties']['Uuid'],
+                                         type=Form,
+                                         name=self.name,
+                                         version=form_json['Properties']['$Version'],
+                                         components=components)
+            self._process_components_json(form_json['Properties']['$Components']
+                                          if '$Components' in form_json['Properties'] else [])
+            self.properties = {
+                key: value for key, value in form_json.iteritems() if key not in Component._DISALLOWED_KEYS
+            }
+            self.ya_version = int(form_json['YaVersion'])
+        else:
+            super(Screen, self).__init__(None, '0', Form, name or 'Screen1', '20', components=components)
+        self.id = self.name
+        xml_root = None if blocks is None else ETree.fromstring(blocks.read())
+        if xml_root is not None:
+            for child in xml_root:
+                if child.tag.endswith('yacodeblocks'):
+                    self.blocks_version = int(child.attrib['language-version'])
+                    self.ya_version = max(self.ya_version, int(child.attrib['ya-version']))
+                else:
+                    block = Block.from_xml(self, child, self.blocks_version)
+                    self._blocks[block.id] = block
+        self.blocks = Selector(self._blocks)
+
+    def _process_components_json(self, components):
+        self._children = []
+        for component_description in components:
+            if '$Components' in component_description:  # component container
+                component = ComponentContainer.from_json(self, component_description)
+            else:
+                component = Component.from_json(self, component_description)
+            self._children.append(component)
+
+    def __iter__(self):
+        for child in RecursiveIterator(self):
+            yield child
+        for child in self._blocks.itervalues():
+            yield child
+
+    def __repr__(self):
+        return "Screen(%s)" % repr(self.name)
+
+    def __str__(self):
+        return self.name
+
+
+def _load_component_types():
+    """
+    Loads the descriptions of App Inventor components from simple_components.json and populates the module with
+    instances of ComponentType for each known type.
+    """
+    with open(pkg_resources.resource_filename('aiatools', 'simple_components.json')) as _f:
+        _component_descriptors = json.load(_f)
+        for _descriptor in _component_descriptors:
+            _methods = _descriptor['methods']
+            _events = _descriptor['events']
+            _properties = {}
+            for _prop in _descriptor['properties']:
+                _properties[_prop['name']] = _prop
+            for _prop in _descriptor['blockProperties']:
+                if _prop['name'] in _properties:
+                    _properties[_prop['name']].update(_prop)
+                else:
+                    _properties[_prop['name']] = _prop
+                    _prop['editorType'] = None
+                    _prop['defaultValue'] = None
+            _properties = _properties.values()
+            _properties.sort(key=lambda x: x['name'])
+            _component = Screen if _descriptor == 'Form' else \
+                ComponentType(_descriptor['name'], _methods, _events, _properties)
+            _component.type = _descriptor['type']
+            _component.external = bool(_descriptor['external'])
+            _component.version = int(_descriptor['version'])
+            _component.category_string = _descriptor['categoryString']
+            _component.help_string = _descriptor['helpString']
+            _component.show_on_palette = bool(_descriptor['showOnPalette'])
+            _component.visible = not bool(_descriptor['nonVisible'])
+            _component.icon_name = _descriptor['iconName']
+            globals()[_component.name] = _component
+            Component.TYPES[_component.name] = _component
+
+
+_load_component_types()
