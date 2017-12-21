@@ -11,11 +11,12 @@ over a project.
 """
 
 
-from __future__ import division
+
 from aiatools.algebra import Expression, AndExpression
 from aiatools.common import Block, Component, ComponentType, FilterableDict, RecursiveIterator
 from aiatools.block_types import procedures_defnoreturn, procedures_defreturn, procedures_callnoreturn, \
     procedures_callreturn
+from functools import reduce
 
 __author__ = 'Evan W. Patton <ewpatton@mit.edu>'
 
@@ -88,7 +89,7 @@ class AggregateOperations:
         :rtype: int or dict[(Atom, str) or Atom or str, int]
         """
         if group_by is None:
-            results = map(func, self)
+            results = list(map(func, self))
             return sum(results) / len(results)
         elif not isinstance(group_by, tuple):
             group_by = (group_by,)
@@ -126,7 +127,7 @@ class AggregateOperations:
         :rtype: int or dict[(Atom, str) or Atom or str, int]
         """
         if group_by is None:
-            return max(map(func, self))
+            return max(list(map(func, self)))
         elif not isinstance(group_by, tuple):
             group_by = (group_by,)
         result = FilterableDict()
@@ -165,7 +166,7 @@ class AggregateOperations:
         :rtype: int or dict[(Atom, str) or Atom or str, int]
         """
         if group_by is None:
-            return min(map(func, self))
+            return min(list(map(func, self)))
         elif not isinstance(group_by, tuple):
             group_by = (group_by,)
         result = FilterableDict()
@@ -396,7 +397,7 @@ class Selector(object, AggregateOperations, Selectors):
     def __call__(self, *args, **kwargs):
         _filter = args[0] if len(args) == 1 else lambda x: True
         subset = NamedCollection()
-        for item in self._collection.itervalues():
+        for item in self._collection.values():
             if _filter(item):
                 subset[item.id] = item
         return Selector(subset)
@@ -425,13 +426,13 @@ class Selector(object, AggregateOperations, Selectors):
         return repr(list(self))
 
     def __iter__(self):
-        return self._collection.itervalues()
+        return iter(self._collection.values())
 
     def itervalues(self):
-        return self._collection.itervalues()
+        return iter(self._collection.values())
 
     def iteritems(self):
-        return self._collection.iteritems()
+        return iter(self._collection.items())
 
     def __len__(self):
         return len(list(iter(self)))
@@ -457,17 +458,17 @@ class PrefixedSelector(Selector):
         raise NotImplementedError()
 
     def __iter__(self):
-        return self._collection.itervalues()
+        return iter(self._collection.values())
 
     def iteritems(self):
-        for k, v in self._collection.iteritems():
+        for k, v in self._collection.items():
             if not k.startswith(self.prefix):
                 yield '%s/%s' % (self.prefix, k), v
             else:
                 yield k, v
 
     def itervalues(self):
-        return self._collection.itervalues()
+        return iter(self._collection.values())
 
 
 class NamedCollection(dict, AggregateOperations, Selectors):
@@ -481,7 +482,7 @@ class NamedCollection(dict, AggregateOperations, Selectors):
         :rtype: NamedCollectionView
         """
         if len(args) > 0:
-            for i in xrange(len(args)):
+            for i in range(len(args)):
                 functor = functor & args[i]
         return NamedCollectionView(self, functor)
 
@@ -505,13 +506,13 @@ class NamedCollectionView(object, AggregateOperations, Selectors):
 
         if functor is not None:
             def generator():
-                for key, value in parent.iteritems():
+                for key, value in parent.items():
                     if functor(value):
                         yield key, value
                 raise StopIteration
             return generator()
         else:
-            return self.parent.iteritems()
+            return iter(self.parent.items())
 
     def iteritems(self):
         return iter(self)
@@ -530,7 +531,7 @@ class UnionSelector(object, AggregateOperations, Selectors):
         self.field = field
 
     def __iter__(self):
-        for c in self.collection.itervalues():
+        for c in self.collection.values():
             if hasattr(c, self.field):
                 for v in getattr(c, self.field):
                     yield v
@@ -539,14 +540,14 @@ class UnionSelector(object, AggregateOperations, Selectors):
         for c in self.collection:
             if hasattr(c, self.field):
                 child = getattr(c, self.field)
-                for v in child.itervalues():
+                for v in child.values():
                     yield v
 
     def iteritems(self):
         for c in self.collection:
             if hasattr(c, self.field):
                 child = getattr(c, self.field)
-                for k, v in child.iteritems():
+                for k, v in child.items():
                     yield k, v
 
     def __call__(self, *args, **kwargs):
@@ -570,14 +571,14 @@ class UnionSelector(object, AggregateOperations, Selectors):
                     i -= 1
             raise IndexError(item)
         else:
-            for v in self.collection.itervalues():
+            for v in self.collection.values():
                 if hasattr(v, self.field):
                     haystack = getattr(v, self.field)
                     if item in haystack:
                         return haystack[item]
                     else:
                         # TODO(ewpatton): Make support ID paths, e.g. Screen1/Arrange1/Button1
-                        for u in haystack.itervalues():
+                        for u in haystack.values():
                             if u.name == item:
                                 return u
         raise KeyError(item)

@@ -4,6 +4,7 @@
 """
 aiatools.algebra defines the expressions and evaluation rules for querying the contents of AIA files.
 """
+import collections
 
 
 __author__ = 'Evan W. Patton <ewpatton@mit.edu>'
@@ -94,8 +95,8 @@ class BinaryExpression(Expression):
         The right hand side of the binary expression.
     """
     def __init__(self, left, right):
-        self.left = ComputedAttribute(left) if callable(left) and not isinstance(left, Expression) else left
-        self.right = ComputedAttribute(right) if callable(right) and not isinstance(right, Expression) else right
+        self.left = ComputedAttribute(left) if isinstance(left, collections.Callable) and not isinstance(left, Expression) else left
+        self.right = ComputedAttribute(right) if isinstance(right, collections.Callable) and not isinstance(right, Expression) else right
 
     def __call__(self, operand, *args, **kwargs):
         raise NotImplementedError
@@ -244,7 +245,7 @@ class NotExpression(Expression):
         The expression to negate.
     """
     def __init__(self, expr):
-        self.expr = ComputedAttribute(expr) if callable(expr) and not isinstance(expr, Expression) else expr
+        self.expr = ComputedAttribute(expr) if isinstance(expr, collections.Callable) and not isinstance(expr, Expression) else expr
 
     def __call__(self, operand, *args, **kwargs):
         return not (self.expr(operand) if isinstance(self.expr, Expression) else self.expr)
@@ -268,7 +269,7 @@ class Atom(Expression):
             return other is self
         elif isinstance(other, Expression):
             return other == self
-        elif isinstance(other, basestring):
+        elif isinstance(other, str):
             return other == self()
         else:
             return False
@@ -307,7 +308,7 @@ class Collection(Atom):
         self.collection = collection
 
     def __call__(self, *args, **kwargs):
-        return Collection(filter(args[0], self.collection))
+        return Collection(list(filter(args[0], self.collection)))
 
 
 class ComputedAttribute(Functor):

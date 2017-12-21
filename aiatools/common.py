@@ -13,6 +13,7 @@ class.
 """
 
 from .algebra import Atom
+from functools import reduce
 
 
 __author__ = 'Evan W. Patton <ewpatton@mit.edu>'
@@ -141,8 +142,8 @@ class Block(object):
         return block
 
     def children(self):
-        return reduce(list.__add__, self.values.itervalues(), []) + \
-               reduce(list.__add__, self.statements.itervalues(), [])
+        return reduce(list.__add__, iter(self.values.values()), []) + \
+               reduce(list.__add__, iter(self.statements.values()), [])
 
     def __repr__(self):
         return '%s(%r, %r)' % (self.__class__.__name__, self.id, self.type)
@@ -230,7 +231,7 @@ class Method(Atom):
     def __init__(self, name, description, deprecated, params, returnType=None):
         self.name = name
         self.description = description
-        if isinstance(deprecated, basestring):
+        if isinstance(deprecated, str):
             self.deprecated = deprecated == 'true'
         else:
             self.deprecated = deprecated
@@ -255,7 +256,7 @@ class Property(Atom):
         self.default_value = defaultValue
         self.description = description
         self.rw = rw
-        if isinstance(deprecated, basestring):
+        if isinstance(deprecated, str):
             self.deprecated = deprecated == 'true'
         else:
             self.deprecated = deprecated
@@ -272,7 +273,7 @@ class Event(Atom):
     def __init__(self, name, description, deprecated, params):
         self.name = name
         self.description = description
-        if isinstance(deprecated, basestring):
+        if isinstance(deprecated, str):
             self.deprecated = deprecated == 'true'
         else:
             self.deprecated = deprecated
@@ -394,7 +395,7 @@ class Component(object):
     def from_json(cls, parent, json_repr):
         typename = json_repr['$Type']
         type = Component.TYPES[typename] if typename in Component.TYPES else Extension(typename)
-        properties = {k: v for k, v in json_repr.iteritems() if k not in Component._DISALLOWED_KEYS}
+        properties = {k: v for k, v in json_repr.items() if k not in Component._DISALLOWED_KEYS}
         return cls(parent, json_repr['Uuid'], type, json_repr['$Name'], json_repr['$Version'], properties)
 
 
@@ -403,4 +404,4 @@ class FilterableDict(dict):
         if rule is None:
             return self
         else:
-            return FilterableDict({k: v for k, v in self.iteritems() if rule(k, v)})
+            return FilterableDict({k: v for k, v in self.items() if rule(k, v)})

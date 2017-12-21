@@ -18,6 +18,7 @@ from aiatools.algebra import ComputedAttribute
 from .algebra import Functor, NotExpression
 from .common import Block
 from .selectors import select
+import collections
 
 
 __author__ = 'Evan W. Patton <ewpatton@mit.edu>'
@@ -129,7 +130,7 @@ def hasAncestor(target):
             return False
         b = b.parent  # Skip b
         while b is not None:
-            if callable(target) and target(b):
+            if isinstance(target, collections.Callable) and target(b):
                 return True
             elif b is target:
                 return True
@@ -167,7 +168,7 @@ def hasDescendant(target):
         if not hasattr(b, 'children'):
             return False
         for child in b.children():
-            if callable(target) and target(child):
+            if isinstance(target, collections.Callable) and target(child):
                 return True
             elif child is target:
                 return True

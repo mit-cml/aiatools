@@ -89,7 +89,7 @@ class ComponentContainer(Component, Selectors):
             type = globals()[typename]
         else:
             type = Extension(typename)
-        properties = {k: v for k, v in json_repr.iteritems() if k not in Component._DISALLOWED_KEYS}
+        properties = {k: v for k, v in json_repr.items() if k not in Component._DISALLOWED_KEYS}
         container = cls(parent, json_repr['Uuid'], type, json_repr['$Name'], json_repr['$Version'], properties)
         for component_description in json_repr['$Components']:
             if '$Components' in component_description:
@@ -147,7 +147,7 @@ class Screen(ComponentContainer):
             self._process_components_json(form_json['Properties']['$Components']
                                           if '$Components' in form_json['Properties'] else [])
             self.properties = {
-                key: value for key, value in form_json.iteritems() if key not in Component._DISALLOWED_KEYS
+                key: value for key, value in form_json.items() if key not in Component._DISALLOWED_KEYS
             }
             self.ya_version = int(form_json['YaVersion'])
         else:
@@ -176,7 +176,7 @@ class Screen(ComponentContainer):
     def __iter__(self):
         for child in RecursiveIterator(self):
             yield child
-        for child in self._blocks.itervalues():
+        for child in self._blocks.values():
             yield child
 
     def __repr__(self):
@@ -206,7 +206,7 @@ def _load_component_types():
                     _properties[_prop['name']] = _prop
                     _prop['editorType'] = None
                     _prop['defaultValue'] = None
-            _properties = _properties.values()
+            _properties = list(_properties.values())
             _properties.sort(key=lambda x: x['name'])
             _component = Screen if _descriptor == 'Form' else \
                 ComponentType(_descriptor['name'], _methods, _events, _properties)

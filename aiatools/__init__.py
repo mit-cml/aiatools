@@ -8,7 +8,7 @@ AIA Tools provides a set of Python classes to interface with application sources
 
 
 from argparse import ArgumentParser
-from aia import AIAFile
+from .aia import AIAFile
 
 from aiatools.aia import *
 from aiatools.algebra import *
