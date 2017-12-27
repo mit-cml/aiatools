@@ -134,7 +134,7 @@ class Screen(ComponentContainer):
         self.blocks_version = None
         if form is not None:
             form_contents = form.readlines()
-            if form_contents[1] != '$JSON\n':
+            if form_contents[1] != b'$JSON\n':
                 raise RuntimeError('Unknown Screen format: %s' % form_contents[1])
             form_json = json.loads(form_contents[2])
             self.name = name or form_json['Properties']['$Name']

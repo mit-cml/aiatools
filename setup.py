@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 setup(name='aiatools',
-      version='1.0.0.dev1',
+      version='1.0.0.dev1-p3',
       description='Tools for extracting information from App Inventor AIA files',
       author='Evan W. Patton',
       author_email='ewpatton@mit.edu',
@@ -32,7 +32,7 @@ setup(name='aiatools',
           ]
       },
       install_requires=[
-          'jproperties==1.0.1'
+          'jprops>=2.0.2'
       ],
       package_data={
           'aiatools': ['simple_components.json']

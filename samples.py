@@ -46,7 +46,7 @@ def radar_plot(sel, title):
     elif the_range <= 20:
         ax.set_rgrids(list(range(min_values, max_values, 4)))
     else:
-        ax.set_rgrids(list(range(min_values, max_values, the_range / 5)))
+        ax.set_rgrids(list(range(min_values, max_values, round(the_range / 5))))  # I chose round, but int could work
     ax.set_title(title, weight='bold')
     ax.plot(theta, values)
     ax.fill(theta, values, alpha=0.25)

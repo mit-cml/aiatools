@@ -55,6 +55,9 @@ class Expression(object):
         """
         return NonequivalenceExpression(self, other)
 
+    def __hash__(self):
+        return id(self)
+
     def __lt__(self, other):
         return LessThanExpression(self, other)
 
@@ -273,6 +276,9 @@ class Atom(Expression):
             return other == self()
         else:
             return False
+
+    def __hash__(self):
+        return id(self)
 
     def __ne__(self, other):
         if isinstance(other, Atom):

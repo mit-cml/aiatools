@@ -11,8 +11,8 @@ The :py:mod:`aiatools.aia` package provides the :py:class:`AIAFile` class for re
 """
 
 import logging
-from jproperties import Properties
-from os.path import isdir, join, walk
+import jprops
+from os.path import isdir, join
 from zipfile import ZipFile
 from .selectors import Selector, NamedCollection, UnionSelector
 from .component_types import Screen
@@ -82,7 +82,7 @@ class AIAFile(object):
         :type: basestring or file
         """
 
-        self.properties = Properties()
+        self.properties = {}
         """
         The contents of the project.properties file.
 
@@ -157,7 +157,9 @@ class AIAFile(object):
 
     def _listfiles(self):
         names = []
-        walk(self.filename, lambda arg, dirname, files: arg.extend([join(dirname, f) for f in files]), names)
+        for dirname, dirs, files in os.walk(self.filename):
+            names.extend([join(dirname, f) for f in files])
+
         return names
 
     def _process_zip(self):
@@ -178,7 +180,7 @@ class AIAFile(object):
                     self._screens[screen.name] = screen
             elif name.endswith('project.properties'):
                 with self.zipfile.open(name) as prop_file:
-                    self.properties.load(prop_file, encoding='utf-8')
+                    self.properties = jprops.load_properties(prop_file)
             else:
                 log.warning('Ignoring file in AIA: %s' % name)
 
@@ -190,7 +192,7 @@ class AIAFile(object):
         self.assets = []
         asset_path = join(self.filename, 'assets')
         src_path = join(self.filename, 'src')
-        for name in self._listfiles():
+        for name in self._listfiles:
             if name.startswith(asset_path):
                 self.assets.append(AIAAsset(None, name))
                 # TODO(ewpatton): Need to load extension JSON to extend language model
@@ -200,9 +202,9 @@ class AIAFile(object):
                     with open('%s.scm' % name, 'r') as form, open('%s.bky' % name, 'r') as blocks:
                         screen = Screen(form=form, blocks=blocks)
                         self._screens[screen.name] = screen
-            elif name.endswith('project.properties'):
+            elif name.endswith('project.properties', encoding='utf-8'):
                 with open(name, 'r') as prop_file:
-                    self.properties.load(prop_file, encoding='utf-8')
+                    self.properties = jprops.load_properties(prop_file)
             else:
                 log.warning('Ignoring file in directory: %s' % name)
 

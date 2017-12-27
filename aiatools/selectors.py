@@ -11,7 +11,6 @@ over a project.
 """
 
 
-
 from aiatools.algebra import Expression, AndExpression
 from aiatools.common import Block, Component, ComponentType, FilterableDict, RecursiveIterator
 from aiatools.block_types import procedures_defnoreturn, procedures_defreturn, procedures_callnoreturn, \
@@ -366,7 +365,7 @@ class Selectors:
         raise NotImplemented()
 
 
-class Selector(object, AggregateOperations, Selectors):
+class Selector(AggregateOperations, Selectors):
     """
     :py:class:`Selector` provides a lazily computed application of an expression over a collection. Items in the
     underlying collection can be accessed in three ways:
@@ -428,10 +427,10 @@ class Selector(object, AggregateOperations, Selectors):
     def __iter__(self):
         return iter(self._collection.values())
 
-    def itervalues(self):
+    def values(self):
         return iter(self._collection.values())
 
-    def iteritems(self):
+    def items(self):
         return iter(self._collection.items())
 
     def __len__(self):
@@ -495,7 +494,7 @@ class NamedCollection(dict, AggregateOperations, Selectors):
             return super(NamedCollection, self).__getitem__(item)
 
 
-class NamedCollectionView(object, AggregateOperations, Selectors):
+class NamedCollectionView(AggregateOperations, Selectors):
     def __init__(self, parent, functor):
         super(NamedCollectionView, self).__init__()
         self.parent = parent
@@ -524,7 +523,7 @@ class NamedCollectionView(object, AggregateOperations, Selectors):
         return repr(dict(iter(self)))
 
 
-class UnionSelector(object, AggregateOperations, Selectors):
+class UnionSelector(AggregateOperations, Selectors):
     def __init__(self, collection, field):
         super(UnionSelector, self).__init__()
         self.collection = collection
