@@ -119,10 +119,10 @@ class Screen(ComponentContainer):
         The name of the screen.
     components : list[Component], optional
         A list of immediate components that are the children of the screen.
-    form : basestring | file, optional
-        A pathanme or file-like that contains a Screen's Scheme (.scm) file.
-    blocks : basestring | file, optional
-        A pathname or file-like that contains a Screen's Blocks (.bky) file.
+    form : string | file, optional
+        A pathanme, string, or file-like that contains a Screen's Scheme (.scm) file.
+    blocks : string | file, optional
+        A pathname, string, or file-like that contains a Screen's Blocks (.bky) file.
     """
     def __init__(self, name=None, components=None, form=None, blocks=None):
         self.uuid = 0
@@ -133,10 +133,13 @@ class Screen(ComponentContainer):
         self.ya_version = None
         self.blocks_version = None
         if form is not None:
-            form_contents = form.readlines()
-            if form_contents[1] != b'$JSON\n':
-                raise RuntimeError('Unknown Screen format: %s' % form_contents[1])
-            form_json = json.loads(form_contents[2])
+            if isinstance(form, str):
+                form_json = json.loads(form)
+            else:
+                form_contents = form.readlines()
+                if form_contents[1] != b'$JSON\n':
+                    raise RuntimeError('Unknown Screen format: %s' % form_contents[1])
+                form_json = json.loads(form_contents[2])
             self.name = name or form_json['Properties']['$Name']
             super(Screen, self).__init__(parent=None,
                                          uuid=form_json['Properties']['Uuid'],
@@ -153,7 +156,11 @@ class Screen(ComponentContainer):
         else:
             super(Screen, self).__init__(None, '0', Form, name or 'Screen1', '20', components=components)
         self.id = self.name
-        xml_root = None if blocks is None else ETree.fromstring(blocks.read())
+        if isinstance(blocks, str):
+            blocks_content = blocks
+        else:
+            blocks_content = None if blocks is None else blocks.read()
+        xml_root = None if blocks is None else ETree.fromstring(blocks_content)
         if xml_root is not None:
             for child in xml_root:
                 if child.tag.endswith('yacodeblocks'):
