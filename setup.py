@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 setup(name='aiatools',
-      version='1.0.0.dev2-p3',
+      version='p3-0.0.3',
       description='Tools for extracting information from App Inventor AIA files',
       author='Evan W. Patton',
       author_email='ewpatton@mit.edu',
