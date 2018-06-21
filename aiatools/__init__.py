@@ -6,17 +6,12 @@ AIA Tools provides a set of Python classes to interface with application sources
 `App Inventor <http://appinventor.mit.edu/>`_.
 """
 
-
-from argparse import ArgumentParser
-from .aia import AIAFile
-
 from aiatools.aia import *
 from aiatools.algebra import *
 from aiatools.attributes import *
 from aiatools.block_types import *
 from aiatools.component_types import *
 from aiatools.selectors import *
-
 
 __author__ = 'Evan W. Patton <ewpatton@mit.edu>'
 
