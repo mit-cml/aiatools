@@ -249,7 +249,7 @@ class Method(Atom):
 class Property(Atom):
     # noinspection PyPep8Naming
     def __init__(self, name, editorType=None, defaultValue=None, description=None, type=None, rw=None,
-                 deprecated=False):
+                 deprecated=False, editorArgs=None):
         self.name = name
         self.type = type
         self.editor_type = editorType
@@ -260,6 +260,7 @@ class Property(Atom):
             self.deprecated = deprecated == 'true'
         else:
             self.deprecated = deprecated
+        self.editor_args = editorArgs
 
     def __call__(self, component, *args, **kwargs):
         return component.properties[self.name]
