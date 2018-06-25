@@ -137,7 +137,7 @@ class Screen(ComponentContainer):
                 form_json = json.loads(form)
             else:
                 form_contents = form.readlines()
-                if form_contents[1] != '$JSON\n':
+                if form_contents[1] != '$JSON\n' or form_contents[1] != b'$JSON\n':
                     raise RuntimeError('Unknown Screen format: %s' % form_contents[1])
                 form_json = json.loads(form_contents[2])
 
