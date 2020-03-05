@@ -366,6 +366,13 @@ generic = NamedAttribute('generic')
 disabled = NamedAttribute('disabled')
 """Tests whether the entity is disabled."""
 
+logically_disabled = NamedAttribute('logically_disabled')
+"""Tests whether the block is logically disabled, either because it is explicitly disabled or is contained within a
+disabled subtree."""
+
+logically_enabled = ~logically_disabled
+"""Tests whether the block is logically enabled."""
+
 enabled = NamedAttribute('Enabled') | ~disabled
 """Tests whether the entity is enabled."""
 
