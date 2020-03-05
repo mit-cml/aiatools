@@ -350,16 +350,31 @@ class Selectors:
         """
         return Selector({item.id: selector(item) for item in self if selector(item) is not None})
 
-    def descendants(self):
+    def descendants(self, order='natural', test=None, skip_failures=False):
         """
         Selects all of the descendants of the entities in the current selection.
+
+        Parameters
+        ----------
+        order : str
+            The order of iteration. Options are 'natural', 'breadth', or 'depth'. Default: 'natural'
+
+        test : callable
+            An optional test used to filter out items from the iteration. Default: None
+
+        skip_failures : bool
+            If skip_failures is true and test is provided but fails for an element, the subtree starting at the element
+            is pruned.
 
         Returns
         -------
         Selector[T]
             The descendants of the entities in the current selection, if any.
         """
-        return Selector({obj.id: obj for match in self for obj in RecursiveIterator(match)})
+        def order_type(m):
+            return order if order != 'natural' else ('depth' if isinstance(m, Block) else 'breadth')
+        return Selector({obj.id: obj if not test or test(obj) else None for match in self
+                         for obj in RecursiveIterator(match, order_type(match), test, skip_failures)})
 
     def __iter__(self):
         raise NotImplemented()

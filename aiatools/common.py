@@ -310,14 +310,27 @@ class Parameter(Atom):
 
 
 class RecursiveIterator(object):
-    def __init__(self, container):
+    def __init__(self, container, order='breadth', test=None, skip=None):
         self.stack = [container]
+        self.order = order
+        self.test = test
+        self.skip = skip
 
     def __iter__(self):
         while len(self.stack) > 0:
             item = self.stack.pop(0)
-            self.stack.extend(item.children())
-            yield item
+            failed = self.test and not self.test(item)
+            if self.skip and failed:
+                continue
+            if self.order == 'breadth':
+                self.stack.extend(item.children())
+            elif self.order == 'depth':
+                self.stack = list(filter(lambda x: x, [child if child != item else None for child in item.children()])) + \
+                             self.stack
+            else:
+                raise NotImplementedError(f'Recursive order {self.order} is unknown.')
+            if not failed:
+                yield item
 
 
 class ComponentType(Atom):
