@@ -63,7 +63,8 @@ class Block(object):
         self.parent = None
         self.logical_parent = None
         self.output = None
-        self.inputs = []
+        self.inputs = {}
+        self.ordered_inputs = []
         self.fields = {}
         self.statements = {}
         self.values = {}
@@ -74,10 +75,11 @@ class Block(object):
         self.inline = False
         self.comment = None
         self.disabled = False
+        self.logically_disabled = False
         self.screen = None
 
     @classmethod
-    def from_xml(cls, screen, xml, lang_ver, siblings=None):
+    def from_xml(cls, screen, xml, lang_ver, siblings=None, parent=None, connection_type=None):
         siblings = siblings if siblings is not None else []
         attributes = xml.attrib
         type = attributes['type']
@@ -107,6 +109,8 @@ class Block(object):
         block = Block(id, type)
         screen._blocks[id] = block
         block.screen = screen
+        block.parent = parent
+        block.logical_parent = parent
         siblings.append(block)
         if 'x' in attributes and 'y' in attributes:  # Top level block
             block.x, block.y = attributes['x'], attributes['y']
@@ -114,6 +118,9 @@ class Block(object):
             block.inline = attributes['inline'] == 'true'
         if 'disabled' in attributes and attributes['disabled'] == 'true':
             block.disabled = True
+            block.logically_disabled = True
+        if connection_type == 'value' or connection_type == 'statement':
+            block.logically_disabled = block.disabled or parent.logically_disabled
         for child in xml:
             if child.tag == 'mutation' or child.tag == _html('mutation'):
                 block.mutation = dict(child.attrib)
@@ -125,19 +132,21 @@ class Block(object):
             elif child.tag in {'field', 'title', _html('field'), _html('title')}:
                 block.fields[child.attrib['name']] = child.text
             elif child.tag == 'value' or child.tag == _html('value'):
-                block.values[child.attrib['name']] = []
-                child_block = Block.from_xml(screen, child[0], lang_ver, block.values[child.attrib['name']])
-                child_block.parent = block
-                child_block.logical_parent = block
+                block.inputs[child.attrib['name']] = block.values[child.attrib['name']] = []
+                child_block = Block.from_xml(screen, child[0], lang_ver, block.values[child.attrib['name']],
+                                             parent=block, connection_type='value')
+                child_block.output = block
+                block.ordered_inputs.append(child_block)
             elif child.tag == 'statement' or child.tag == _html('statement'):
-                block.statements[child.attrib['name']] = []
-                child_block = Block.from_xml(screen, child[0], lang_ver, block.statements[child.attrib['name']])
-                child_block.parent = block
+                block.inputs[child.attrib['name']] = block.statements[child.attrib['name']] = []
+                child_block = Block.from_xml(screen, child[0], lang_ver, block.statements[child.attrib['name']],
+                                             parent=block, connection_type='statement')
+                block.ordered_inputs.append(child_block)
                 for child_block in block.statements[child.attrib['name']]:
                     child_block.logical_parent = block
             elif child.tag == 'next' or child.tag == _html('next'):
-                child_block = Block.from_xml(screen, child[0], lang_ver, siblings=siblings)
-                child_block.parent = block
+                child_block = Block.from_xml(screen, child[0], lang_ver, siblings=siblings, parent=block,
+                                             connection_type='next')
                 block.next = child_block
         return block
 
