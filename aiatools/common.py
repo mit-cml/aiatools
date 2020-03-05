@@ -160,7 +160,8 @@ class Block(object):
     def __str__(self):
         description = {
             'id': self.id,
-            'type': self.type
+            'type': self.type,
+            'disabled': self.disabled
         }
         if self.x is not None:
             description['x'] = self.x
