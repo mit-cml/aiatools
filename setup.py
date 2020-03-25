@@ -1,14 +1,17 @@
 #!/usr/bin/env python
 
-from distutils.core import setup
+from setuptools import setup, find_packages
+
+with open('README.md') as f:
+    long_description = f.read()
 
 setup(name='aiatools',
-      version='p3-0.0.3',
+      version='0.1.0-py3',
       description='Tools for extracting information from App Inventor AIA files',
       author='Evan W. Patton',
       author_email='ewpatton@mit.edu',
-      url='https://www.evanpatton.com/projects/aiatools/',
-      packages=['aiatools'],
+      url='https://github.com/mit-cml/aiatools',
+      packages=find_packages(),
       classifiers=[
           'Development Status :: 3 - Alpha',
           'Environment :: Console',
