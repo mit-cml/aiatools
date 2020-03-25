@@ -1,0 +1,803 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>aiatools.selectors &mdash; AIA Tools 0.1.0-py3 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> AIA Tools
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../aiatools.html">aiatools package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">AIA Tools</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>aiatools.selectors</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for aiatools.selectors</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- mode: python; coding: utf-8; -*-</span>
+<span class="c1"># Copyright © 2017 Massachusetts Institute of Technology, All rights reserved.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The :py:mod:`aiatools.selectors` modules provides high level selection and aggregation operations that can be executed</span>
+<span class="sd">over a project.</span>
+
+<span class="sd">.. testsetup:</span>
+<span class="sd">    from aiatools import *</span>
+<span class="sd">    project = AIAFile(&#39;test_aias/LondonCholeraMap.aia&#39;)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">from</span> <span class="nn">aiatools.algebra</span> <span class="kn">import</span> <span class="n">Expression</span><span class="p">,</span> <span class="n">AndExpression</span>
+<span class="kn">from</span> <span class="nn">aiatools.common</span> <span class="kn">import</span> <span class="n">Block</span><span class="p">,</span> <span class="n">Component</span><span class="p">,</span> <span class="n">ComponentType</span><span class="p">,</span> <span class="n">FilterableDict</span><span class="p">,</span> <span class="n">RecursiveIterator</span>
+<span class="kn">from</span> <span class="nn">aiatools.block_types</span> <span class="kn">import</span> <span class="n">procedures_defnoreturn</span><span class="p">,</span> <span class="n">procedures_defreturn</span><span class="p">,</span> <span class="n">procedures_callnoreturn</span><span class="p">,</span> \
+    <span class="n">procedures_callreturn</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">reduce</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;Evan W. Patton &lt;ewpatton@mit.edu&gt;&#39;</span>
+
+
+<div class="viewcode-block" id="AggregateOperations"><a class="viewcode-back" href="../../aiatools.html#aiatools.component_types.AggregateOperations">[docs]</a><span class="k">class</span> <span class="nc">AggregateOperations</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :py:class:`AggregateOptions` is a mixin class that provides functionality for aggregation operations on selections.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># noinspection PyTypeChecker</span>
+<div class="viewcode-block" id="AggregateOperations.count"><a class="viewcode-back" href="../../aiatools.html#aiatools.component_types.AggregateOperations.count">[docs]</a>    <span class="k">def</span> <span class="nf">count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_by</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Counts the number of entities in a collection, optionally grouping by the ``group_by`` argument. ``group_by``</span>
+<span class="sd">        will be called each element in the collection.</span>
+
+<span class="sd">        .. doctest::</span>
+
+<span class="sd">            &gt;&gt;&gt; project.components().count()</span>
+<span class="sd">            4</span>
+<span class="sd">            &gt;&gt;&gt; project.blocks(top_level).count(group_by=type)</span>
+<span class="sd">            {&#39;component_event&#39;: 2}</span>
+<span class="sd">            &gt;&gt;&gt; project.blocks().count(group_by=(type, mutation.component_type))</span>
+<span class="sd">            {(&#39;component_event&#39;, &#39;Map&#39;): 1, (&#39;component_method&#39;, &#39;Map&#39;): 2, (&#39;component_event&#39;, &#39;Button&#39;): 1, (&#39;component_set_get&#39;, &#39;Marker&#39;): 4}</span>
+
+<span class="sd">        :param group_by: If given, a :py:class:`~aiatools.algebra.Functor` or tuple thereof, the value(s) of which</span>
+<span class="sd">            will be used to group the entities in the collection for counting.</span>
+<span class="sd">        :type group_by: tuple[aiatools.algebra.Functor or callable] or aiatools.algebra.Functor or callable or None</span>
+<span class="sd">        :return: The count of the number of entities or a dictionary mapping unique ``group_by`` values to counts.</span>
+<span class="sd">        :rtype: int or dict[(Atom, str) or Atom or str, int]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">group_by</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">return</span> <span class="n">result</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">group_by</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="n">group_by</span> <span class="o">=</span> <span class="p">(</span><span class="n">group_by</span><span class="p">,)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">FilterableDict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">attr</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">x</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">group_by</span><span class="p">)</span>
+            <span class="k">if</span> <span class="kc">None</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">attr</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">attr</span> <span class="o">=</span> <span class="n">attr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
+                    <span class="n">result</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">result</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="AggregateOperations.avg"><a class="viewcode-back" href="../../aiatools.html#aiatools.component_types.AggregateOperations.avg">[docs]</a>    <span class="k">def</span> <span class="nf">avg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">group_by</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Averages the values of ``func`` applied to the collection, optionally grouping by the ``group_by`` argument.</span>
+<span class="sd">        ``group_by`` will be called on each element in the collection.</span>
+
+<span class="sd">        .. doctest::</span>
+
+<span class="sd">            &gt;&gt;&gt; project.blocks(top_level).avg(height)</span>
+<span class="sd">            4.0</span>
+<span class="sd">            &gt;&gt;&gt; project.blocks().avg(depth)</span>
+<span class="sd">            3.347826086956522</span>
+
+<span class="sd">        :param func: The function to apply to the entities in the collection for which the average will be computed.</span>
+<span class="sd">        :type func: aiatools.algebra.Functor or callable</span>
+<span class="sd">        :param group_by: If given, a :py:class`~aiatools.algebra.Functor` or tuple thereof, the value(s) of which will</span>
+<span class="sd">            be used to group the entities in the collection for averaging.</span>
+<span class="sd">        :type group_by: tuple[aiatools.algebra.Functor or callable] or aiatools.algebra.Functor or callable or None</span>
+<span class="sd">        :return: The average of the values of ``func`` applied to the entities of the collection or a dictionary</span>
+<span class="sd">            mapping the value(s) of ``group_by`` applied to the entities to the average of ``func`` applied to the</span>
+<span class="sd">            entities in the subset identified by the dictionary key.</span>
+<span class="sd">        :rtype: int or dict[(Atom, str) or Atom or str, int]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">group_by</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="bp">self</span><span class="p">))</span>
+            <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">results</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">group_by</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="n">group_by</span> <span class="o">=</span> <span class="p">(</span><span class="n">group_by</span><span class="p">,)</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">attr</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">x</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">group_by</span><span class="p">)</span>
+            <span class="k">if</span> <span class="kc">None</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">attr</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">attr</span> <span class="o">=</span> <span class="n">attr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">state</span><span class="p">:</span>
+                    <span class="n">state</span><span class="p">[</span><span class="n">attr</span><span class="p">][</span><span class="s1">&#39;sum&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">func</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                    <span class="n">state</span><span class="p">[</span><span class="n">attr</span><span class="p">][</span><span class="s1">&#39;count&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">state</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;sum&#39;</span><span class="p">:</span> <span class="n">func</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="s1">&#39;count&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">FilterableDict</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span><span class="p">[</span><span class="s1">&#39;sum&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">v</span><span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">state</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="AggregateOperations.max"><a class="viewcode-back" href="../../aiatools.html#aiatools.component_types.AggregateOperations.max">[docs]</a>    <span class="k">def</span> <span class="nf">max</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">group_by</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Obtains the maximum value of ``func`` applied to the collection, optionally grouping by the ``group_by``</span>
+<span class="sd">        argument. ``group_by`` will be called on each element in the collection.</span>
+
+<span class="sd">        .. doctest::</span>
+
+<span class="sd">            &gt;&gt;&gt; project.blocks(type == component_event).max(height)</span>
+<span class="sd">            6</span>
+
+<span class="sd">        :param func: The function to apply to the entities in the collection for which the maximum will be computed.</span>
+<span class="sd">        :type func: aiatools.algebra.Functor or callable</span>
+<span class="sd">        :param group_by: If given, a :py:class:`~aiatools.algebra.Functor` or tuple thereof, the value(s) of which will</span>
+<span class="sd">            be used to group the entities in the collection for determining the maximum.</span>
+<span class="sd">        :type group_by:</span>
+<span class="sd">        :return: The maximum of the values of ``func`` applied to the entities of the collection or a dictionary</span>
+<span class="sd">            mapping the value(s) of ``group_by`` applied to the entities to the maximum of ``func`` applied to the</span>
+<span class="sd">            entities in the subset identified by the dictionary key.</span>
+<span class="sd">        :rtype: int or dict[(Atom, str) or Atom or str, int]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">group_by</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="bp">self</span><span class="p">)))</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">group_by</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="n">group_by</span> <span class="o">=</span> <span class="p">(</span><span class="n">group_by</span><span class="p">,)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">FilterableDict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">attr</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">x</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">group_by</span><span class="p">)</span>
+            <span class="k">if</span> <span class="kc">None</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">attr</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">attr</span> <span class="o">=</span> <span class="n">attr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">attr_value</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">attr</span> <span class="ow">in</span> <span class="n">result</span> <span class="ow">and</span> <span class="n">result</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">attr_value</span><span class="p">)</span> <span class="ow">or</span> <span class="n">attr</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
+                    <span class="n">result</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="n">attr_value</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="AggregateOperations.min"><a class="viewcode-back" href="../../aiatools.html#aiatools.component_types.AggregateOperations.min">[docs]</a>    <span class="k">def</span> <span class="nf">min</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">group_by</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Obtains the minimum value of ``func`` applied to the collection, optionally grouping by the ``group_by``</span>
+<span class="sd">        argument. ``group_by`` will be called on each element in the collection.</span>
+
+<span class="sd">        .. doctest::</span>
+
+<span class="sd">            &gt;&gt;&gt; project.blocks(type == component_event).min(height)</span>
+<span class="sd">            2</span>
+<span class="sd">            &gt;&gt;&gt; project.blocks(category == Components).min(height, group_by=type)</span>
+<span class="sd">            {&#39;component_method&#39;: 1, &#39;component_set_get&#39;: 1, &#39;component_event&#39;: 2}</span>
+<span class="sd">            &gt;&gt;&gt; project.blocks().min(height, group_by=(type, mutation.component_type))</span>
+<span class="sd">            {(&#39;component_event&#39;, &#39;Map&#39;): 6, (&#39;component_method&#39;, &#39;Map&#39;): 1, (&#39;component_event&#39;, &#39;Button&#39;): 2, (&#39;component_set_get&#39;, &#39;Marker&#39;): 1}</span>
+
+<span class="sd">        :param func: The function to apply to the enetities in the collection for which the minimum will be computed.</span>
+<span class="sd">        :type func: aiatools.algebra.Functor or callable</span>
+<span class="sd">        :param group_by: If given, a :py:class:`~aiatools.algebra.Functor` or tuple thereof, the value(s) of which will</span>
+<span class="sd">            be used to group the entities in the collection determining the minimum.</span>
+<span class="sd">        :type group_by: tuple[aiatools.</span>
+<span class="sd">        :return: The minimum of the values of ``func`` applied to the entities of the collection or a dictionary</span>
+<span class="sd">            mapping the value(s) of ``group_by`` applied to the entities to the minimum of ``func`` applied to the</span>
+<span class="sd">            entities in the subset identified by the dictionary key.</span>
+<span class="sd">        :rtype: int or dict[(Atom, str) or Atom or str, int]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">group_by</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="bp">self</span><span class="p">)))</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">group_by</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="n">group_by</span> <span class="o">=</span> <span class="p">(</span><span class="n">group_by</span><span class="p">,)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">FilterableDict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">attr</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">x</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">group_by</span><span class="p">)</span>
+            <span class="k">if</span> <span class="kc">None</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">attr</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">attr</span> <span class="o">=</span> <span class="n">attr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">attr_value</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">attr</span> <span class="ow">in</span> <span class="n">result</span> <span class="ow">and</span> <span class="n">result</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">attr_value</span><span class="p">)</span> <span class="ow">or</span> <span class="n">attr</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
+                    <span class="n">result</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="n">attr_value</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="AggregateOperations.empty"><a class="viewcode-back" href="../../aiatools.html#aiatools.component_types.AggregateOperations.empty">[docs]</a>    <span class="k">def</span> <span class="nf">empty</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Tests whether the result of the selector chains up to and including the current selection is empty.</span>
+
+<span class="sd">        .. doctest::</span>
+
+<span class="sd">            &gt;&gt;&gt; project.components(type == Voting).empty()</span>
+<span class="sd">            True</span>
+<span class="sd">            &gt;&gt;&gt; project.components(type == Button).empty()</span>
+<span class="sd">            False</span>
+
+<span class="sd">        :return: ``True`` if the selection is empty, otherwise ``False``.</span>
+<span class="sd">        :rtype: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="bp">NotImplemented</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Selectors"><a class="viewcode-back" href="../../aiatools.html#aiatools.component_types.Selectors">[docs]</a><span class="k">class</span> <span class="nc">Selectors</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :py:class:`Selectors` is a mixin class for collections that enables selecting entities related to entities in the</span>
+<span class="sd">    collection.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+<div class="viewcode-block" id="Selectors.screens"><a class="viewcode-back" href="../../aiatools.html#aiatools.component_types.Selectors.screens">[docs]</a>    <span class="k">def</span> <span class="nf">screens</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Select the screens containing the elements in the collection.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Selector[Screen]</span>
+<span class="sd">            A selector over the screens containing the entities in the collection.</span>
+
+<span class="sd">        Todo</span>
+<span class="sd">        ----</span>
+<span class="sd">            - (ewpatton) Implement subset selection on screens</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Selector</span><span class="p">({</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="p">:</span> <span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span>
+                         <span class="k">if</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">ComponentType</span><span class="p">)</span> <span class="ow">and</span> <span class="n">item</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;Form&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">item</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;Form&#39;</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="Selectors.components"><a class="viewcode-back" href="../../aiatools.html#aiatools.component_types.Selectors.components">[docs]</a>    <span class="k">def</span> <span class="nf">components</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Select the subset of entities in the current selection that are :py:class:`Component`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Selector[Component]</span>
+<span class="sd">            A selector for further selection of entities. The selector will only contain :py:class:`Component`.</span>
+
+<span class="sd">        Todo</span>
+<span class="sd">        ----</span>
+<span class="sd">            - (ewpatton) Implement subset selection on components</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Selector</span><span class="p">({</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="p">:</span> <span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">Component</span><span class="p">)})</span></div>
+
+<div class="viewcode-block" id="Selectors.blocks"><a class="viewcode-back" href="../../aiatools.html#aiatools.component_types.Selectors.blocks">[docs]</a>    <span class="k">def</span> <span class="nf">blocks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Select blocks under the current node. The following filters can be applied:</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Selector[Block]</span>
+<span class="sd">            A selector for further selection of entities. The selector will only contain :py:class:`Block`.</span>
+
+<span class="sd">        Todo</span>
+<span class="sd">        ----</span>
+<span class="sd">            - (ewpatton) Implement subset selection on blocks.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Selector</span><span class="p">({</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="p">:</span> <span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">Block</span><span class="p">)})</span></div>
+
+<div class="viewcode-block" id="Selectors.callers"><a class="viewcode-back" href="../../aiatools.html#aiatools.component_types.Selectors.callers">[docs]</a>    <span class="k">def</span> <span class="nf">callers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Select any blocks that result in a call to any callable blocks in the selection.</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">            Only operates on procedures at this time. See TODO about adding support for components.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Selector[Block]</span>
+<span class="sd">            A selector over the callers (if any) of the callable blocks contained in the collection. The selector will</span>
+<span class="sd">            only contain :py:class:`Block`.</span>
+
+<span class="sd">        Todo</span>
+<span class="sd">        ----</span>
+<span class="sd">            - (ewpatton) Implement subset selection on the blocks</span>
+<span class="sd">            - (ewpatton) Add call graph so that component method/event blocks can be included</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_filter</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="n">Selector</span><span class="p">({</span><span class="n">block</span><span class="o">.</span><span class="n">id</span><span class="p">:</span> <span class="n">block</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span>
+                         <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="p">(</span><span class="n">procedures_defreturn</span><span class="p">(),</span> <span class="n">procedures_defnoreturn</span><span class="p">())</span>
+                         <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">screen</span><span class="o">.</span><span class="n">blocks</span>
+                         <span class="k">if</span> <span class="n">block</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="p">(</span><span class="n">procedures_callnoreturn</span><span class="p">(),</span> <span class="n">procedures_callreturn</span><span class="p">())</span> <span class="ow">and</span>
+                         <span class="n">block</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s1">&#39;PROCNAME&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">item</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s1">&#39;NAME&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">_filter</span><span class="p">(</span><span class="n">block</span><span class="p">)})</span></div>
+
+<div class="viewcode-block" id="Selectors.callees"><a class="viewcode-back" href="../../aiatools.html#aiatools.component_types.Selectors.callees">[docs]</a>    <span class="k">def</span> <span class="nf">callees</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Select procedure definition blocks (if any) that are called by the procedure call blocks in the collection.</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">            Only operates on procedures at this time. See TODO about adding support for components.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Selector[Block]</span>
+<span class="sd">            A selector over the callees (if any) of the caller blocks contained in the collection. The selector will</span>
+<span class="sd">            only container :py:class:`Block`.</span>
+
+<span class="sd">        Todo</span>
+<span class="sd">        ----</span>
+<span class="sd">            - (ewpatton) Implement subset selection on the blocks</span>
+<span class="sd">            - (ewpatton) Add call graph so that component method/event blocks can be included</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Selectors.branch"><a class="viewcode-back" href="../../aiatools.html#aiatools.component_types.Selectors.branch">[docs]</a>    <span class="k">def</span> <span class="nf">branch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">branch_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        branch_id : int</span>
+<span class="sd">            Retrieve the __branch_id__th branch of any blocks in this collection that have a statement input. This can</span>
+<span class="sd">            be used to walk an if-elseif-else block, for example.</span>
+
+<span class="sd">        Todo</span>
+<span class="sd">        ----</span>
+<span class="sd">            - (ewpatton) Implementation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Selectors.map"><a class="viewcode-back" href="../../aiatools.html#aiatools.component_types.Selectors.map">[docs]</a>    <span class="k">def</span> <span class="nf">map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">functor</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Applies ``functor`` to the entities in the selection.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        functor : callable</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            A list in the value space of ``functor``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">functor</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">if</span> <span class="n">functor</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Selectors.select"><a class="viewcode-back" href="../../aiatools.html#aiatools.component_types.Selectors.select">[docs]</a>    <span class="k">def</span> <span class="nf">select</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">selector</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Selects a subset of the entities in the selection for which ``selector(item)`` is True.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        selector : Expression</span>
+<span class="sd">            The expression to be applied to filter the current selection.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Selector[T]</span>
+<span class="sd">            The subset of the selection. The exact contents of the subset depends on the type of content of the</span>
+<span class="sd">            current selection.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Selector</span><span class="p">({</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="p">:</span> <span class="n">selector</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">if</span> <span class="n">selector</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="Selectors.descendants"><a class="viewcode-back" href="../../aiatools.html#aiatools.component_types.Selectors.descendants">[docs]</a>    <span class="k">def</span> <span class="nf">descendants</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;natural&#39;</span><span class="p">,</span> <span class="n">test</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">skip_failures</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Selects all of the descendants of the entities in the current selection.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        order : str</span>
+<span class="sd">            The order of iteration. Options are &#39;natural&#39;, &#39;breadth&#39;, or &#39;depth&#39;. Default: &#39;natural&#39;</span>
+
+<span class="sd">        test : callable</span>
+<span class="sd">            An optional test used to filter out items from the iteration. Default: None</span>
+
+<span class="sd">        skip_failures : bool</span>
+<span class="sd">            If skip_failures is true and test is provided but fails for an element, the subtree starting at the element</span>
+<span class="sd">            is pruned.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Selector[T]</span>
+<span class="sd">            The descendants of the entities in the current selection, if any.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">def</span> <span class="nf">order_type</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">order</span> <span class="k">if</span> <span class="n">order</span> <span class="o">!=</span> <span class="s1">&#39;natural&#39;</span> <span class="k">else</span> <span class="p">(</span><span class="s1">&#39;depth&#39;</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">Block</span><span class="p">)</span> <span class="k">else</span> <span class="s1">&#39;breadth&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Selector</span><span class="p">({</span><span class="n">obj</span><span class="o">.</span><span class="n">id</span><span class="p">:</span> <span class="n">obj</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">test</span> <span class="ow">or</span> <span class="n">test</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="bp">self</span>
+                         <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">RecursiveIterator</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="n">order_type</span><span class="p">(</span><span class="n">match</span><span class="p">),</span> <span class="n">test</span><span class="p">,</span> <span class="n">skip_failures</span><span class="p">)})</span></div>
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="bp">NotImplemented</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Selector"><a class="viewcode-back" href="../../aiatools.html#aiatools.component_types.Selector">[docs]</a><span class="k">class</span> <span class="nc">Selector</span><span class="p">(</span><span class="n">AggregateOperations</span><span class="p">,</span> <span class="n">Selectors</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :py:class:`Selector` provides a lazily computed application of an expression over a collection. Items in the</span>
+<span class="sd">    underlying collection can be accessed in three ways:</span>
+
+<span class="sd">    1. Through use of an iterable. :py:class:`Selector` is an iterable, and iterating over it yields its values. There</span>
+<span class="sd">       is also :py:meth:`iteritems`, which iterates over key, value pairs in the collection similar to how the</span>
+<span class="sd">       iteritems method in :py:obj:`dict` works.</span>
+<span class="sd">    2. Through an identifier/key. For example, accessing the Component called Button1 can be done with</span>
+<span class="sd">       ``selection[&#39;Button1&#39;]``.</span>
+<span class="sd">    3. Through an index. For example, if ``children`` is a :py:class:`Selector, ``children[5]`` will give the 6th</span>
+<span class="sd">       element in the selection. This is not random access, but linear in ``n``, so if accessing elements in sequence is</span>
+<span class="sd">       required using the iteration method is recommended.</span>
+
+<span class="sd">    Selectors can also be called, in which case they will return a new Selector whose elements are given by applying</span>
+<span class="sd">    the first argument of the function call to each element in the underlying collection.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    collection : collections.Iterable[{id}] or dict[{id}]</span>
+<span class="sd">        A collection of objects</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collection</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Selector</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">collection</span><span class="p">,</span> <span class="s1">&#39;__iter__&#39;</span><span class="p">):</span>
+            <span class="n">collection</span> <span class="o">=</span> <span class="n">NamedCollection</span><span class="p">({</span><span class="n">collection</span><span class="o">.</span><span class="n">id</span><span class="p">:</span> <span class="n">collection</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_collection</span> <span class="o">=</span> <span class="n">collection</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">_filter</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="kc">True</span>
+        <span class="n">subset</span> <span class="o">=</span> <span class="n">NamedCollection</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_collection</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">_filter</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+                <span class="n">subset</span><span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">item</span>
+        <span class="k">return</span> <span class="n">Selector</span><span class="p">(</span><span class="n">subset</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="n">item</span> <span class="k">if</span> <span class="n">item</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">item</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">v</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">i</span> <span class="o">-=</span> <span class="mi">1</span>
+            <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_collection</span><span class="p">[</span><span class="n">item</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">NamedCollection</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_collection</span>
+
+    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Cannot modify read-only collection&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_collection</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+<div class="viewcode-block" id="Selector.values"><a class="viewcode-back" href="../../aiatools.html#aiatools.component_types.Selector.values">[docs]</a>    <span class="k">def</span> <span class="nf">values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_collection</span><span class="o">.</span><span class="n">values</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="Selector.items"><a class="viewcode-back" href="../../aiatools.html#aiatools.component_types.Selector.items">[docs]</a>    <span class="k">def</span> <span class="nf">items</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_collection</span><span class="o">.</span><span class="n">items</span><span class="p">())</span></div>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="p">)))</span></div>
+
+
+<div class="viewcode-block" id="PrefixedSelector"><a class="viewcode-back" href="../../aiatools.html#aiatools.component_types.PrefixedSelector">[docs]</a><span class="k">class</span> <span class="nc">PrefixedSelector</span><span class="p">(</span><span class="n">Selector</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">collection</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">PrefixedSelector</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">collection</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">=</span> <span class="n">prefix</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">PrefixedSelector</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">/</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="p">,</span> <span class="n">item</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="c1"># Fallback to non-prefixed implementation</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">PrefixedSelector</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">PrefixedSelector</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__contains__</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">/</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="p">,</span> <span class="n">item</span><span class="p">))</span> <span class="ow">or</span> \
+            <span class="nb">super</span><span class="p">(</span><span class="n">PrefixedSelector</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__contains__</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_collection</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+<div class="viewcode-block" id="PrefixedSelector.iteritems"><a class="viewcode-back" href="../../aiatools.html#aiatools.component_types.PrefixedSelector.iteritems">[docs]</a>    <span class="k">def</span> <span class="nf">iteritems</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_collection</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="p">):</span>
+                <span class="k">yield</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">/</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="p">,</span> <span class="n">k</span><span class="p">),</span> <span class="n">v</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span></div>
+
+<div class="viewcode-block" id="PrefixedSelector.itervalues"><a class="viewcode-back" href="../../aiatools.html#aiatools.component_types.PrefixedSelector.itervalues">[docs]</a>    <span class="k">def</span> <span class="nf">itervalues</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_collection</span><span class="o">.</span><span class="n">values</span><span class="p">())</span></div></div>
+
+
+<div class="viewcode-block" id="NamedCollection"><a class="viewcode-back" href="../../aiatools.html#aiatools.component_types.NamedCollection">[docs]</a><span class="k">class</span> <span class="nc">NamedCollection</span><span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="n">AggregateOperations</span><span class="p">,</span> <span class="n">Selectors</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">functor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param functor:</span>
+<span class="sd">        :param args:</span>
+<span class="sd">        :param kwargs:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        :rtype: NamedCollectionView</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)):</span>
+                <span class="n">functor</span> <span class="o">=</span> <span class="n">functor</span> <span class="o">&amp;</span> <span class="n">args</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">NamedCollectionView</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">functor</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">Expression</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">NamedCollectionView</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">NamedCollectionView</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reduce</span><span class="p">(</span><span class="n">AndExpression</span><span class="p">,</span> <span class="n">item</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">NamedCollection</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="n">item</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="NamedCollectionView"><a class="viewcode-back" href="../../aiatools.html#aiatools.component_types.NamedCollectionView">[docs]</a><span class="k">class</span> <span class="nc">NamedCollectionView</span><span class="p">(</span><span class="n">AggregateOperations</span><span class="p">,</span> <span class="n">Selectors</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">functor</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">NamedCollectionView</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">functor</span> <span class="o">=</span> <span class="n">functor</span>
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">parent</span><span class="p">,</span> <span class="n">functor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">functor</span>
+
+        <span class="k">if</span> <span class="n">functor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">def</span> <span class="nf">generator</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">parent</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">functor</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+                        <span class="k">yield</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span>
+                <span class="k">raise</span> <span class="ne">StopIteration</span>
+            <span class="k">return</span> <span class="n">generator</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+
+<div class="viewcode-block" id="NamedCollectionView.iteritems"><a class="viewcode-back" href="../../aiatools.html#aiatools.component_types.NamedCollectionView.iteritems">[docs]</a>    <span class="k">def</span> <span class="nf">iteritems</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="NamedCollectionView.filter"><a class="viewcode-back" href="../../aiatools.html#aiatools.component_types.NamedCollectionView.filter">[docs]</a>    <span class="k">def</span> <span class="nf">filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rule</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span> <span class="k">if</span> <span class="n">rule</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">NamedCollectionView</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rule</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="p">)))</span></div>
+
+
+<div class="viewcode-block" id="UnionSelector"><a class="viewcode-back" href="../../aiatools.html#aiatools.component_types.UnionSelector">[docs]</a><span class="k">class</span> <span class="nc">UnionSelector</span><span class="p">(</span><span class="n">AggregateOperations</span><span class="p">,</span> <span class="n">Selectors</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collection</span><span class="p">,</span> <span class="n">field</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">UnionSelector</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">collection</span> <span class="o">=</span> <span class="n">collection</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">field</span> <span class="o">=</span> <span class="n">field</span>
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">field</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">field</span><span class="p">):</span>
+                    <span class="k">yield</span> <span class="n">v</span>
+
+<div class="viewcode-block" id="UnionSelector.itervalues"><a class="viewcode-back" href="../../aiatools.html#aiatools.component_types.UnionSelector.itervalues">[docs]</a>    <span class="k">def</span> <span class="nf">itervalues</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">collection</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">field</span><span class="p">):</span>
+                <span class="n">child</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">field</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">child</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                    <span class="k">yield</span> <span class="n">v</span></div>
+
+<div class="viewcode-block" id="UnionSelector.iteritems"><a class="viewcode-back" href="../../aiatools.html#aiatools.component_types.UnionSelector.iteritems">[docs]</a>    <span class="k">def</span> <span class="nf">iteritems</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">collection</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">field</span><span class="p">):</span>
+                <span class="n">child</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">field</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">child</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">yield</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span></div>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">functor</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">def</span> <span class="nf">functor</span><span class="p">(</span><span class="n">_</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Selector</span><span class="p">({</span><span class="n">v</span><span class="o">.</span><span class="n">id</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="k">if</span> <span class="n">functor</span><span class="p">(</span><span class="n">v</span><span class="p">)})</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="n">item</span> <span class="k">if</span> <span class="n">item</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">item</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">v</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">i</span> <span class="o">-=</span> <span class="mi">1</span>
+            <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">field</span><span class="p">):</span>
+                    <span class="n">haystack</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">field</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">haystack</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="n">haystack</span><span class="p">[</span><span class="n">item</span><span class="p">]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># TODO(ewpatton): Make support ID paths, e.g. Screen1/Arrange1/Button1</span>
+                        <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">haystack</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                            <span class="k">if</span> <span class="n">u</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">item</span><span class="p">:</span>
+                                <span class="k">return</span> <span class="n">u</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="p">)))</span></div>
+
+
+<div class="viewcode-block" id="select"><a class="viewcode-back" href="../../aiatools.html#aiatools.component_types.select">[docs]</a><span class="k">def</span> <span class="nf">select</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :py:func:`~aiatools.selectors.select` is a convenience method for creating a selection out of a single item. This</span>
+<span class="sd">    allows one to select a specific component for further exploration</span>
+<span class="sd">    :param item:</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">Selector</span><span class="p">(</span><span class="n">item</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016-2020 Evan W. Patton
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

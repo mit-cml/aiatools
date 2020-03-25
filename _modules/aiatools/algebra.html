@@ -1,0 +1,542 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>aiatools.algebra &mdash; AIA Tools 0.1.0-py3 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> AIA Tools
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../aiatools.html">aiatools package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">AIA Tools</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>aiatools.algebra</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for aiatools.algebra</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- mode: python; coding: utf-8; -*-</span>
+<span class="c1"># Copyright © 2017 Massachusetts Institute of Technology, All rights reserved.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">aiatools.algebra defines the expressions and evaluation rules for querying the contents of AIA files.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">collections</span>
+
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;Evan W. Patton &lt;ewpatton@mit.edu&gt;&#39;</span>
+
+
+<span class="k">def</span> <span class="nf">_reduce_expression</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">op</span><span class="p">):</span>
+    <span class="k">while</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">Expression</span><span class="p">):</span>
+        <span class="n">expr</span> <span class="o">=</span> <span class="n">expr</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">expr</span>
+
+
+<div class="viewcode-block" id="Expression"><a class="viewcode-back" href="../../aiatools.html#aiatools.algebra.Expression">[docs]</a><span class="k">class</span> <span class="nc">Expression</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base interface for constructing expressions over App Inventor projects.</span>
+
+<span class="sd">    Expressions by default support the following operations:</span>
+
+<span class="sd">    1. ``left == right``: Accepts an entity if and only if ``left(entity) == right(entity)``</span>
+<span class="sd">    2. ``left != right``: Accepts an entity if and only if ``left(entity) != right(entity)``</span>
+<span class="sd">    3. ``left &lt; right``: Accepts an entity if and only if ``left(entity) &lt; right(entity)``</span>
+<span class="sd">    4. ``left &gt; right``: Accepts an entity if and only if ``left(entity) &gt; right(entity)``</span>
+<span class="sd">    5. ``left &lt;= right``: Accepts an entity if and only if ``left(entity) &lt;= right(entity)``</span>
+<span class="sd">    6. ``left &gt;= righ``: Accepts an entity if and only if ``left(entity &gt;= right(entity)``</span>
+<span class="sd">    7. ``left &amp; right``: Accepts an entity if and only if ``left(entity) and right(entity)`` is True.</span>
+<span class="sd">    8. ``left | right``: Accepts an entity if and only if ``left(entity) or right(entity)`` is True.</span>
+<span class="sd">    9. ``~expr``: Accepts an entity if and only if ``not expr(entity)`` is True</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructs a new EquivalenceExpression with this expression as the left hand side and ``other`` as the right</span>
+<span class="sd">        hand side.</span>
+
+<span class="sd">        :param other: The other thing to check for equivalence with this expression when evaluated.</span>
+<span class="sd">        :type other: Expression</span>
+<span class="sd">        :return: A new equivalence expression</span>
+<span class="sd">        :rtype: EquivalenceExpression</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">EquivalenceExpression</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructs a new NotnequivalenceExpression with this expression as the left hand side and ``expr`` as the right</span>
+<span class="sd">        hand side.</span>
+
+<span class="sd">        :param other: The other expression to check for nonequivalence with this expression when evaluated.</span>
+<span class="sd">        :type other: Expression</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">NonequivalenceExpression</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">LessThanExpression</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__gt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">GreaterThanExpression</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__le__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">LessThanOrEqualExpression</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__ge__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">GreaterThanOrEqualExpression</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__and__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">AndExpression</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__or__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">OrExpression</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__invert__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">NotExpression</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operand</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+
+<div class="viewcode-block" id="BinaryExpression"><a class="viewcode-back" href="../../aiatools.html#aiatools.algebra.BinaryExpression">[docs]</a><span class="k">class</span> <span class="nc">BinaryExpression</span><span class="p">(</span><span class="n">Expression</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstract base class for an Expression taking two clauses.</span>
+
+<span class="sd">    Concrete implementations of this class must provide an implementation of the ``__call__`` special method to evaluate</span>
+<span class="sd">    the truth value of the left and right hand sides.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    left : Expression</span>
+<span class="sd">        The left hand side of the binary expression.</span>
+<span class="sd">    right : Expression</span>
+<span class="sd">        The right hand side of the binary expression.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">left</span> <span class="o">=</span> <span class="n">ComputedAttribute</span><span class="p">(</span><span class="n">left</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">Expression</span><span class="p">)</span> <span class="k">else</span> <span class="n">left</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">right</span> <span class="o">=</span> <span class="n">ComputedAttribute</span><span class="p">(</span><span class="n">right</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">right</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">right</span><span class="p">,</span> <span class="n">Expression</span><span class="p">)</span> <span class="k">else</span> <span class="n">right</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operand</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+
+<div class="viewcode-block" id="EquivalenceExpression"><a class="viewcode-back" href="../../aiatools.html#aiatools.algebra.EquivalenceExpression">[docs]</a><span class="k">class</span> <span class="nc">EquivalenceExpression</span><span class="p">(</span><span class="n">BinaryExpression</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :py:class:`EquivalenceExpression` compares the output of two expressions for equivalent values, however == is</span>
+<span class="sd">    defined on those values. An EquivalenceExpression is typically constructed by using the == operator on an existing</span>
+<span class="sd">    pair of expressions, for example:</span>
+
+<span class="sd">        &gt;&gt;&gt; from aiatools.attributes import name</span>
+<span class="sd">        &gt;&gt;&gt; name == &#39;Button1&#39;</span>
+<span class="sd">        NamedAttributeTuple((&#39;name&#39;, &#39;instance_name&#39;)) == &#39;Button1&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operand</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">left_val</span> <span class="o">=</span> <span class="n">_reduce_expression</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="n">operand</span><span class="p">)</span>
+        <span class="n">right_val</span> <span class="o">=</span> <span class="n">_reduce_expression</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">,</span> <span class="n">operand</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">left_val</span> <span class="o">==</span> <span class="n">right_val</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%r</span><span class="s1"> == </span><span class="si">%r</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="NonequivalenceExpression"><a class="viewcode-back" href="../../aiatools.html#aiatools.algebra.NonequivalenceExpression">[docs]</a><span class="k">class</span> <span class="nc">NonequivalenceExpression</span><span class="p">(</span><span class="n">BinaryExpression</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :py:class:`NonequivalenceExpression` compares the output of two expressions for nonequivalent values, however != is</span>
+<span class="sd">    defined on those values. A NonequivalenceExpression is typically constructed by using the != operator on an existing</span>
+<span class="sd">    pair of expressions, for example:</span>
+
+<span class="sd">        &gt;&gt;&gt; from aiatools.attributes import name</span>
+<span class="sd">        &gt;&gt;&gt; name != &#39;Button1&#39;</span>
+<span class="sd">        NamedAttributeTuple((&#39;name&#39;, &#39;instance_name&#39;)) != &#39;Button1&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operand</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">left_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">(</span><span class="n">operand</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="n">Expression</span><span class="p">)</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span>
+        <span class="n">right_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">(</span><span class="n">operand</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">,</span> <span class="n">Expression</span><span class="p">)</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">left_val</span> <span class="o">!=</span> <span class="n">right_val</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%r</span><span class="s1"> != </span><span class="si">%r</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LessThanExpression"><a class="viewcode-back" href="../../aiatools.html#aiatools.algebra.LessThanExpression">[docs]</a><span class="k">class</span> <span class="nc">LessThanExpression</span><span class="p">(</span><span class="n">BinaryExpression</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :py:class:`LessThanExpression` compares the output of two expressions and returns True if the value of the left hand</span>
+<span class="sd">    side of the expression is less than the value of the right hand expression, for the definition of the less than</span>
+<span class="sd">    operation on the two values. A LessThanExpression is typically constructed by using the &lt; operator on an existing</span>
+<span class="sd">    pair of expressions, for example:</span>
+
+<span class="sd">        &gt;&gt;&gt; from aiatools.attributes import version</span>
+<span class="sd">        &gt;&gt;&gt; version &lt; 5</span>
+<span class="sd">        NamedAttribute(&#39;version&#39;) &lt; 5</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operand</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">left_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">(</span><span class="n">operand</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="n">Expression</span><span class="p">)</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span>
+        <span class="n">right_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">(</span><span class="n">operand</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">,</span> <span class="n">Expression</span><span class="p">)</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">left_val</span> <span class="o">&lt;</span> <span class="n">right_val</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%r</span><span class="s1"> &lt; </span><span class="si">%r</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GreaterThanExpression"><a class="viewcode-back" href="../../aiatools.html#aiatools.algebra.GreaterThanExpression">[docs]</a><span class="k">class</span> <span class="nc">GreaterThanExpression</span><span class="p">(</span><span class="n">BinaryExpression</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :py:class:`GreaterThanExpression` compares the output of two expressions and returns True if the value of the left</span>
+<span class="sd">    handl side of the expression is greater than the value of the right hand expression, for the definition of the</span>
+<span class="sd">    greater than operation on the two values. A GreaterThanExpression is typically constructed by using the &gt; operator</span>
+<span class="sd">    on an existing pair of expressions, for example:</span>
+
+<span class="sd">        &gt;&gt;&gt; from aiatools.attributes import version</span>
+<span class="sd">        &gt;&gt;&gt; version &gt; 5</span>
+<span class="sd">        NamedAttribute(&#39;version&#39;) &gt; 5</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operand</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">left_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">(</span><span class="n">operand</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="n">Expression</span><span class="p">)</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span>
+        <span class="n">right_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">(</span><span class="n">operand</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">,</span> <span class="n">Expression</span><span class="p">)</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">left_val</span> <span class="o">&gt;</span> <span class="n">right_val</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%r</span><span class="s1"> &gt; </span><span class="si">%r</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LessThanOrEqualExpression"><a class="viewcode-back" href="../../aiatools.html#aiatools.algebra.LessThanOrEqualExpression">[docs]</a><span class="k">class</span> <span class="nc">LessThanOrEqualExpression</span><span class="p">(</span><span class="n">BinaryExpression</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operand</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">left_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">(</span><span class="n">operand</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="n">Expression</span><span class="p">)</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span>
+        <span class="n">right_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">(</span><span class="n">operand</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">,</span> <span class="n">Expression</span><span class="p">)</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">left_val</span> <span class="o">&lt;=</span> <span class="n">right_val</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%r</span><span class="s1"> &lt;= </span><span class="si">%r</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GreaterThanOrEqualExpression"><a class="viewcode-back" href="../../aiatools.html#aiatools.algebra.GreaterThanOrEqualExpression">[docs]</a><span class="k">class</span> <span class="nc">GreaterThanOrEqualExpression</span><span class="p">(</span><span class="n">BinaryExpression</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operand</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">left_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">(</span><span class="n">operand</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="n">Expression</span><span class="p">)</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span>
+        <span class="n">right_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">(</span><span class="n">operand</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">,</span> <span class="n">Expression</span><span class="p">)</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">left_val</span> <span class="o">&gt;=</span> <span class="n">right_val</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%r</span><span class="s1"> &gt;= </span><span class="si">%r</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="AndExpression"><a class="viewcode-back" href="../../aiatools.html#aiatools.algebra.AndExpression">[docs]</a><span class="k">class</span> <span class="nc">AndExpression</span><span class="p">(</span><span class="n">BinaryExpression</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operand</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">left_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">(</span><span class="n">operand</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="n">Expression</span><span class="p">)</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span>
+        <span class="n">right_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">(</span><span class="n">operand</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">,</span> <span class="n">Expression</span><span class="p">)</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span>
+        <span class="k">return</span> <span class="n">left_val</span> <span class="ow">and</span> <span class="n">right_val</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%r</span><span class="s1"> &amp; </span><span class="si">%r</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="OrExpression"><a class="viewcode-back" href="../../aiatools.html#aiatools.algebra.OrExpression">[docs]</a><span class="k">class</span> <span class="nc">OrExpression</span><span class="p">(</span><span class="n">BinaryExpression</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operand</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">left_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">(</span><span class="n">operand</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="n">Expression</span><span class="p">)</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span>
+        <span class="n">right_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">(</span><span class="n">operand</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">,</span> <span class="n">Expression</span><span class="p">)</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span>
+        <span class="k">return</span> <span class="n">left_val</span> <span class="ow">or</span> <span class="n">right_val</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> | </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="NotExpression"><a class="viewcode-back" href="../../aiatools.html#aiatools.algebra.NotExpression">[docs]</a><span class="k">class</span> <span class="nc">NotExpression</span><span class="p">(</span><span class="n">Expression</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :py:class:`NotExpression` is a unary expression that logically negates the output of the expression it encapsulates.</span>
+<span class="sd">    NotExpressions are typically instantiated by using the unary prefix operator ~ to invert the expression. Note that</span>
+<span class="sd">    ~ binds tightly, so most expressions, unless they are :py:class:`Atom`, must be wrapped in parentheses.</span>
+
+<span class="sd">    Note</span>
+<span class="sd">    ----</span>
+<span class="sd">    NotExpression will optimize its own inversion so that two operators will cancel one another out. For example:</span>
+
+<span class="sd">        &gt;&gt;&gt; from aiatools.attributes import disabled</span>
+<span class="sd">        &gt;&gt;&gt; ~disabled</span>
+<span class="sd">        ~NamedAttribute(&#39;disabled&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; ~~disabled</span>
+<span class="sd">        NamedAttribute(&#39;disabled&#39;)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    expr : Expression</span>
+<span class="sd">        The expression to negate.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expr</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expr</span> <span class="o">=</span> <span class="n">ComputedAttribute</span><span class="p">(</span><span class="n">expr</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">Expression</span><span class="p">)</span> <span class="k">else</span> <span class="n">expr</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operand</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expr</span><span class="p">(</span><span class="n">operand</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expr</span><span class="p">,</span> <span class="n">Expression</span><span class="p">)</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">expr</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expr</span><span class="p">,</span> <span class="n">Expression</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expr</span><span class="p">,</span> <span class="p">(</span><span class="n">Functor</span><span class="p">,</span> <span class="n">Atom</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="s1">&#39;~(</span><span class="si">%r</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">expr</span>
+        <span class="k">return</span> <span class="s1">&#39;~</span><span class="si">%r</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">expr</span>
+
+    <span class="k">def</span> <span class="fm">__invert__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">expr</span></div>
+
+
+<div class="viewcode-block" id="Atom"><a class="viewcode-back" href="../../aiatools.html#aiatools.algebra.Atom">[docs]</a><span class="k">class</span> <span class="nc">Atom</span><span class="p">(</span><span class="n">Expression</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :py:class:`Atom` represents an entity in the grammar, such as a specific component type (Button) or block type</span>
+<span class="sd">    (component_set_get). Atoms cannot be modified and evaluate to themselves.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Atom</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">other</span> <span class="ow">is</span> <span class="bp">self</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Expression</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">other</span> <span class="o">==</span> <span class="bp">self</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">other</span> <span class="o">==</span> <span class="bp">self</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Atom</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">other</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">self</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">other</span> <span class="o">!=</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operand</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="Functor"><a class="viewcode-back" href="../../aiatools.html#aiatools.algebra.Functor">[docs]</a><span class="k">class</span> <span class="nc">Functor</span><span class="p">(</span><span class="n">Expression</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :py:class:`Functor` is an abstract base class that serves as the root of the class tree of classes that apply</span>
+<span class="sd">    functions to entities. Unlike most expressions, these typically compute non-Boolean values that may then undergo</span>
+<span class="sd">    further computation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="bp">NotImplemented</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Collection"><a class="viewcode-back" href="../../aiatools.html#aiatools.algebra.Collection">[docs]</a><span class="k">class</span> <span class="nc">Collection</span><span class="p">(</span><span class="n">Atom</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :py:class:`Collection` is an :py:class:`Atom` wrapping a collection, such as a list or tuple, of entities. Calls to</span>
+<span class="sd">    the Collection will filter the collection given an Expression.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    collection : collections.Iterable[aiatools.common.Component|aiatools.common.Block]</span>
+<span class="sd">        The Python collection of entities to be wrapped into the new atomic collection.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collection</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">collection</span> <span class="o">=</span> <span class="n">collection</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Collection</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">collection</span><span class="p">)))</span></div>
+
+
+<div class="viewcode-block" id="ComputedAttribute"><a class="viewcode-back" href="../../aiatools.html#aiatools.algebra.ComputedAttribute">[docs]</a><span class="k">class</span> <span class="nc">ComputedAttribute</span><span class="p">(</span><span class="n">Functor</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :py:class:`ComputedAttribute` is a :py:class:`Functor` that wraps a Python function or lambda expression. This</span>
+<span class="sd">    allows for arbitrary computations to be used in evaluating entities in a project.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    functor : callback</span>
+<span class="sd">        The functor that should be applied to the entity when the ComputedAttribute needs to be computed. Note that the</span>
+<span class="sd">        return value is not memoized, so the given functor should be time efficient as possible when computing its</span>
+<span class="sd">        value.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">functor</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">functor</span> <span class="o">=</span> <span class="n">functor</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">functor</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">functor</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">functor</span><span class="p">)</span> <span class="o">==</span> <span class="nb">id</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">functor</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">(</span><span class="si">%r</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">functor</span><span class="p">)</span></div>
+
+
+<span class="n">and_</span> <span class="o">=</span> <span class="n">AndExpression</span>
+<span class="n">or_</span> <span class="o">=</span> <span class="n">OrExpression</span>
+<span class="n">not_</span> <span class="o">=</span> <span class="n">NotExpression</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016-2020 Evan W. Patton
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

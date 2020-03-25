@@ -1,0 +1,284 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>aiatools.block_types &mdash; AIA Tools 0.1.0-py3 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> AIA Tools
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../aiatools.html">aiatools package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">AIA Tools</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>aiatools.block_types</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for aiatools.block_types</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- mode: python; coding: utf-8; -*-</span>
+<span class="c1"># Copyright © 2017 Massachusetts Institute of Technology, All rights reserved.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">.common</span> <span class="kn">import</span> <span class="n">BlockCategory</span><span class="p">,</span> <span class="n">BlockType</span>
+
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;Evan W. Patton &lt;ewpatton@mit.edu&gt;&#39;</span>
+
+
+<div class="viewcode-block" id="define_block_type"><a class="viewcode-back" href="../../aiatools.html#aiatools.block_types.define_block_type">[docs]</a><span class="k">def</span> <span class="nf">define_block_type</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">category</span><span class="p">):</span>
+    <span class="nb">globals</span><span class="p">()[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">BlockType</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">category</span><span class="p">)</span></div>
+
+
+<span class="n">Control</span> <span class="o">=</span> <span class="n">BlockCategory</span><span class="p">(</span><span class="s1">&#39;Control&#39;</span><span class="p">)</span>
+<span class="n">Logic</span> <span class="o">=</span> <span class="n">BlockCategory</span><span class="p">(</span><span class="s1">&#39;Logic&#39;</span><span class="p">)</span>
+<span class="n">Math</span> <span class="o">=</span> <span class="n">BlockCategory</span><span class="p">(</span><span class="s1">&#39;Math&#39;</span><span class="p">)</span>
+<span class="n">Text</span> <span class="o">=</span> <span class="n">BlockCategory</span><span class="p">(</span><span class="s1">&#39;Text&#39;</span><span class="p">)</span>
+<span class="n">Lists</span> <span class="o">=</span> <span class="n">BlockCategory</span><span class="p">(</span><span class="s1">&#39;Lists&#39;</span><span class="p">)</span>
+<span class="n">Colors</span> <span class="o">=</span> <span class="n">BlockCategory</span><span class="p">(</span><span class="s1">&#39;Colors&#39;</span><span class="p">)</span>
+<span class="n">Variables</span> <span class="o">=</span> <span class="n">BlockCategory</span><span class="p">(</span><span class="s1">&#39;Variables&#39;</span><span class="p">)</span>
+<span class="n">Procedures</span> <span class="o">=</span> <span class="n">BlockCategory</span><span class="p">(</span><span class="s1">&#39;Procedures&#39;</span><span class="p">)</span>
+<span class="n">Dictionaries</span> <span class="o">=</span> <span class="n">BlockCategory</span><span class="p">(</span><span class="s1">&#39;Dictionaries&#39;</span><span class="p">)</span>
+<span class="c1"># Components is plural to prevent collision with aiatools.common.Component</span>
+<span class="n">Components</span> <span class="o">=</span> <span class="n">BlockCategory</span><span class="p">(</span><span class="s1">&#39;Components&#39;</span><span class="p">)</span>
+
+<span class="c1"># Control category blocks</span>
+<span class="k">for</span> <span class="n">_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;controls_if&#39;</span><span class="p">,</span> <span class="s1">&#39;controls_forRange&#39;</span><span class="p">,</span> <span class="s1">&#39;controls_forEach&#39;</span><span class="p">,</span> <span class="s1">&#39;controls_while&#39;</span><span class="p">,</span> <span class="s1">&#39;controls_choose&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;controls_do_then_return&#39;</span><span class="p">,</span> <span class="s1">&#39;controls_eval_but_ignore&#39;</span><span class="p">,</span> <span class="s1">&#39;controls_openAnotherScreen&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;controls_openAnotherScreenWithStartValue&#39;</span><span class="p">,</span> <span class="s1">&#39;controls_getStartValue&#39;</span><span class="p">,</span> <span class="s1">&#39;controls_closeScreen&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;controls_closeScreenWithValue&#39;</span><span class="p">,</span> <span class="s1">&#39;controls_closeApplication&#39;</span><span class="p">,</span> <span class="s1">&#39;controls_getPlainStartText&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;controls_closeScreenWithPlainText&#39;</span><span class="p">,</span> <span class="s1">&#39;controls_break&#39;</span><span class="p">]:</span>
+    <span class="n">define_block_type</span><span class="p">(</span><span class="n">_name</span><span class="p">,</span> <span class="n">Control</span><span class="p">)</span>
+
+<span class="c1"># Logic category blocks</span>
+<span class="k">for</span> <span class="n">_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;logic_boolean&#39;</span><span class="p">,</span> <span class="s1">&#39;logic_false&#39;</span><span class="p">,</span> <span class="s1">&#39;logic_negate&#39;</span><span class="p">,</span> <span class="s1">&#39;logic_compare&#39;</span><span class="p">,</span> <span class="s1">&#39;logic_operation&#39;</span><span class="p">,</span> <span class="s1">&#39;logic_or&#39;</span><span class="p">]:</span>
+    <span class="n">define_block_type</span><span class="p">(</span><span class="n">_name</span><span class="p">,</span> <span class="n">Logic</span><span class="p">)</span>
+
+<span class="c1"># Math category blocks</span>
+<span class="k">for</span> <span class="n">_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;math_number&#39;</span><span class="p">,</span> <span class="s1">&#39;math_compare&#39;</span><span class="p">,</span> <span class="s1">&#39;math_add&#39;</span><span class="p">,</span> <span class="s1">&#39;math_subtract&#39;</span><span class="p">,</span> <span class="s1">&#39;math_multiply&#39;</span><span class="p">,</span> <span class="s1">&#39;math_division&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;math_power&#39;</span><span class="p">,</span> <span class="s1">&#39;math_bitwise&#39;</span><span class="p">,</span> <span class="s1">&#39;math_random_int&#39;</span><span class="p">,</span> <span class="s1">&#39;math_random_float&#39;</span><span class="p">,</span> <span class="s1">&#39;math_random_set_seed&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;math_on_list&#39;</span><span class="p">,</span> <span class="s1">&#39;math_single&#39;</span><span class="p">,</span> <span class="s1">&#39;math_abs&#39;</span><span class="p">,</span> <span class="s1">&#39;math_neg&#39;</span><span class="p">,</span> <span class="s1">&#39;math_round&#39;</span><span class="p">,</span> <span class="s1">&#39;math_ceiling&#39;</span><span class="p">,</span> <span class="s1">&#39;math_floor&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;math_divide&#39;</span><span class="p">,</span> <span class="s1">&#39;math_trig&#39;</span><span class="p">,</span> <span class="s1">&#39;math_cos&#39;</span><span class="p">,</span> <span class="s1">&#39;math_tan&#39;</span><span class="p">,</span> <span class="s1">&#39;math_atan2&#39;</span><span class="p">,</span> <span class="s1">&#39;math_convert_angles&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;math_format_as_decimal&#39;</span><span class="p">,</span> <span class="s1">&#39;math_is_a_number&#39;</span><span class="p">,</span> <span class="s1">&#39;math_convert_number&#39;</span><span class="p">]:</span>
+    <span class="n">define_block_type</span><span class="p">(</span><span class="n">_name</span><span class="p">,</span> <span class="n">Math</span><span class="p">)</span>
+
+<span class="c1"># Text category blocks</span>
+<span class="k">for</span> <span class="n">_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">,</span> <span class="s1">&#39;text_join&#39;</span><span class="p">,</span> <span class="s1">&#39;text_length&#39;</span><span class="p">,</span> <span class="s1">&#39;text_isEmpty&#39;</span><span class="p">,</span> <span class="s1">&#39;text_compare&#39;</span><span class="p">,</span> <span class="s1">&#39;text_trim&#39;</span><span class="p">,</span> <span class="s1">&#39;text_changeCase&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;text_starts_at&#39;</span><span class="p">,</span> <span class="s1">&#39;text_contains&#39;</span><span class="p">,</span> <span class="s1">&#39;text_split&#39;</span><span class="p">,</span> <span class="s1">&#39;text_split_at_spaces&#39;</span><span class="p">,</span> <span class="s1">&#39;text_segment&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;text_replace_all&#39;</span><span class="p">,</span> <span class="s1">&#39;obfuscated_text&#39;</span><span class="p">,</span> <span class="s1">&#39;text_is_string&#39;</span><span class="p">]:</span>
+    <span class="n">define_block_type</span><span class="p">(</span><span class="n">_name</span><span class="p">,</span> <span class="n">Text</span><span class="p">)</span>
+
+<span class="c1"># renamed block</span>
+<span class="n">obsfucated_text</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()[</span><span class="s1">&#39;obfuscated_text&#39;</span><span class="p">]</span>
+
+<span class="c1"># Lists category blocks</span>
+<span class="k">for</span> <span class="n">_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;lists_create_with&#39;</span><span class="p">,</span> <span class="s1">&#39;lists_create_with_item&#39;</span><span class="p">,</span> <span class="s1">&#39;lists_add_items&#39;</span><span class="p">,</span> <span class="s1">&#39;lists_is_in&#39;</span><span class="p">,</span> <span class="s1">&#39;lists_length&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;lists_is_empty&#39;</span><span class="p">,</span> <span class="s1">&#39;lists_pick_random_item&#39;</span><span class="p">,</span> <span class="s1">&#39;lists_position_in&#39;</span><span class="p">,</span> <span class="s1">&#39;lists_select_item&#39;</span><span class="p">,</span> <span class="s1">&#39;lists_insert_item&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;lists_replace_item&#39;</span><span class="p">,</span> <span class="s1">&#39;lists_remove_item&#39;</span><span class="p">,</span> <span class="s1">&#39;lists_append_list&#39;</span><span class="p">,</span> <span class="s1">&#39;lists_copy&#39;</span><span class="p">,</span> <span class="s1">&#39;lists_is_list&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;lists_to_csv_row&#39;</span><span class="p">,</span> <span class="s1">&#39;lists_to_csv_table&#39;</span><span class="p">,</span> <span class="s1">&#39;lists_from_csv_row&#39;</span><span class="p">,</span> <span class="s1">&#39;lists_from_csv_table&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;lists_lookup_in_pairs&#39;</span><span class="p">,</span> <span class="s1">&#39;lists_join_with_separator&#39;</span><span class="p">]:</span>
+    <span class="n">define_block_type</span><span class="p">(</span><span class="n">_name</span><span class="p">,</span> <span class="n">Lists</span><span class="p">)</span>
+
+<span class="c1"># Dictionaries category blocks</span>
+<span class="k">for</span> <span class="n">_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;dictionaries_create_with&#39;</span><span class="p">,</span> <span class="s1">&#39;pair&#39;</span><span class="p">,</span> <span class="s1">&#39;dictionaries_lookup&#39;</span><span class="p">,</span> <span class="s1">&#39;dictionaries_set_pair&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;dictionaries_delete_pair&#39;</span><span class="p">,</span> <span class="s1">&#39;dictionaries_recursive_lookup&#39;</span><span class="p">,</span> <span class="s1">&#39;dictionaries_recursive_set&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;dictionaries_getters&#39;</span><span class="p">,</span> <span class="s1">&#39;dictionaries_get_values&#39;</span><span class="p">,</span> <span class="s1">&#39;dictionaries_is_key_in&#39;</span><span class="p">,</span> <span class="s1">&#39;dictionaries_length&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;dictionaries_alist_to_dict&#39;</span><span class="p">,</span> <span class="s1">&#39;dictionaries_dict_to_alist&#39;</span><span class="p">,</span> <span class="s1">&#39;dictionaries_copy&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;dictionaries_combine_dicts&#39;</span><span class="p">,</span> <span class="s1">&#39;dictionaries_walk_tree&#39;</span><span class="p">,</span> <span class="s1">&#39;dictionaries_walk_all&#39;</span><span class="p">,</span> <span class="s1">&#39;dictionaries_is_dict&#39;</span><span class="p">]:</span>
+    <span class="n">define_block_type</span><span class="p">(</span><span class="n">_name</span><span class="p">,</span> <span class="n">Dictionaries</span><span class="p">)</span>
+
+<span class="c1"># Colors category blocks</span>
+<span class="k">for</span> <span class="n">_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;color_black&#39;</span><span class="p">,</span> <span class="s1">&#39;color_white&#39;</span><span class="p">,</span> <span class="s1">&#39;color_red&#39;</span><span class="p">,</span> <span class="s1">&#39;color_pink&#39;</span><span class="p">,</span> <span class="s1">&#39;color_orange&#39;</span><span class="p">,</span> <span class="s1">&#39;color_yellow&#39;</span><span class="p">,</span> <span class="s1">&#39;color_green&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;color_cyan&#39;</span><span class="p">,</span> <span class="s1">&#39;color_blue&#39;</span><span class="p">,</span> <span class="s1">&#39;color_magenta&#39;</span><span class="p">,</span> <span class="s1">&#39;color_light_gray&#39;</span><span class="p">,</span> <span class="s1">&#39;color_gray&#39;</span><span class="p">,</span> <span class="s1">&#39;color_dark_gray&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;color_make_color&#39;</span><span class="p">,</span> <span class="s1">&#39;color_split_color&#39;</span><span class="p">]:</span>
+    <span class="n">define_block_type</span><span class="p">(</span><span class="n">_name</span><span class="p">,</span> <span class="n">Colors</span><span class="p">)</span>
+
+<span class="c1"># Variables category blocks</span>
+<span class="k">for</span> <span class="n">_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;global_declaration&#39;</span><span class="p">,</span> <span class="s1">&#39;lexical_variable_get&#39;</span><span class="p">,</span> <span class="s1">&#39;lexical_variable_set&#39;</span><span class="p">,</span> <span class="s1">&#39;local_declaration_statement&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;local_declaration_expression&#39;</span><span class="p">]:</span>
+    <span class="n">define_block_type</span><span class="p">(</span><span class="n">_name</span><span class="p">,</span> <span class="n">Variables</span><span class="p">)</span>
+
+<span class="c1"># Procedures category blocks</span>
+<span class="k">for</span> <span class="n">_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;procedures_defnoreturn&#39;</span><span class="p">,</span> <span class="s1">&#39;procedures_defreturn&#39;</span><span class="p">,</span> <span class="s1">&#39;procedures_callnoreturn&#39;</span><span class="p">,</span> <span class="s1">&#39;procedures_callreturn&#39;</span><span class="p">]:</span>
+    <span class="n">define_block_type</span><span class="p">(</span><span class="n">_name</span><span class="p">,</span> <span class="n">Procedures</span><span class="p">)</span>
+
+<span class="c1"># Component category blocks</span>
+<span class="k">for</span> <span class="n">_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;component_event&#39;</span><span class="p">,</span> <span class="s1">&#39;component_method&#39;</span><span class="p">,</span> <span class="s1">&#39;component_set_get&#39;</span><span class="p">,</span> <span class="s1">&#39;component_component_block&#39;</span><span class="p">]:</span>
+    <span class="n">define_block_type</span><span class="p">(</span><span class="n">_name</span><span class="p">,</span> <span class="n">Components</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016-2020 Evan W. Patton
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

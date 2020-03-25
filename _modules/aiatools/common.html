@@ -1,0 +1,624 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>aiatools.common &mdash; AIA Tools 0.1.0-py3 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> AIA Tools
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../aiatools.html">aiatools package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">AIA Tools</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>aiatools.common</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for aiatools.common</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- mode: python; coding: utf-8; -*-</span>
+<span class="c1"># Copyright © 2017 Massachusetts Institute of Technology, All rights reserved.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">.. testsetup::</span>
+
+<span class="sd">    from aiatools import *</span>
+<span class="sd">    project = AIAFile(&#39;test_aias/LondonCholeraMap.aia&#39;)</span>
+
+<span class="sd">The :py:mod:`aiatools.common` module defines the core data model that is used throughout the aiatools project. In most</span>
+<span class="sd">cases, users will not construct these objects directly but rather through use of the :py:class:`~aiatools.aia.AIAFile`</span>
+<span class="sd">class.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">.algebra</span> <span class="kn">import</span> <span class="n">Atom</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">reduce</span>
+
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;Evan W. Patton &lt;ewpatton@mit.edu&gt;&#39;</span>
+
+
+<span class="k">def</span> <span class="nf">_html</span><span class="p">(</span><span class="n">tag</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Prefixes the given ``tag`` with the XHTML prefix. Block files saved with newer versions of App Inventor will have</span>
+<span class="sd">    this XML namespace prepended when read with the ETree framework.</span>
+<span class="sd">    :param tag: An XML element tag</span>
+<span class="sd">    :type tag: basestring</span>
+<span class="sd">    :return: A new string prefixed with the XHTML prefix.</span>
+<span class="sd">    :rtype: str or unicode</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="s1">&#39;{http://www.w3.org/1999/xhtml}&#39;</span> <span class="o">+</span> <span class="n">tag</span>
+
+
+<span class="c1"># noinspection PyShadowingBuiltins</span>
+<div class="viewcode-block" id="Block"><a class="viewcode-back" href="../../aiatools.html#aiatools.common.Block">[docs]</a><span class="k">class</span> <span class="nc">Block</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="n">_CATEGORIES</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;color&#39;</span><span class="p">,</span> <span class="s1">&#39;component&#39;</span><span class="p">,</span> <span class="s1">&#39;controls&#39;</span><span class="p">,</span> <span class="s1">&#39;global&#39;</span><span class="p">,</span> <span class="s1">&#39;lexical&#39;</span><span class="p">,</span> <span class="s1">&#39;lists&#39;</span><span class="p">,</span> <span class="s1">&#39;local&#39;</span><span class="p">,</span> <span class="s1">&#39;logic&#39;</span><span class="p">,</span> <span class="s1">&#39;math&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;obfuscated&#39;</span><span class="p">,</span> <span class="s1">&#39;procedures&#39;</span><span class="p">,</span> <span class="s1">&#39;text&#39;</span><span class="p">}</span>
+    <span class="n">_CATEGORY_MAP</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="s1">&#39;Colors&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;component&#39;</span><span class="p">:</span> <span class="s1">&#39;Components&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;controls&#39;</span><span class="p">:</span> <span class="s1">&#39;Controls&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;global&#39;</span><span class="p">:</span> <span class="s1">&#39;Variables&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;lexical&#39;</span><span class="p">:</span> <span class="s1">&#39;Variables&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;lists&#39;</span><span class="p">:</span> <span class="s1">&#39;Lists&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;local&#39;</span><span class="p">:</span> <span class="s1">&#39;Variables&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;logic&#39;</span><span class="p">:</span> <span class="s1">&#39;Logic&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;math&#39;</span><span class="p">:</span> <span class="s1">&#39;Math&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;obfuscated&#39;</span><span class="p">:</span> <span class="s1">&#39;Text&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;obsfucated&#39;</span><span class="p">:</span> <span class="s1">&#39;Text&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;procedures&#39;</span><span class="p">:</span> <span class="s1">&#39;Procedures&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;Text&#39;</span>
+    <span class="p">}</span>
+    <span class="n">_ID_COUNT</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="nb">id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="nb">type</span>
+        <span class="n">parts</span> <span class="o">=</span> <span class="nb">type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;text&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">category</span> <span class="o">=</span> <span class="s1">&#39;Text&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">category</span> <span class="o">=</span> <span class="n">Block</span><span class="o">.</span><span class="n">_CATEGORY_MAP</span><span class="p">[</span><span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logical_parent</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ordered_inputs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fields</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">statements</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">next</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mutation</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inline</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comment</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">disabled</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logically_disabled</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">screen</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="Block.from_xml"><a class="viewcode-back" href="../../aiatools.html#aiatools.common.Block.from_xml">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_xml</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">screen</span><span class="p">,</span> <span class="n">xml</span><span class="p">,</span> <span class="n">lang_ver</span><span class="p">,</span> <span class="n">siblings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">connection_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">siblings</span> <span class="o">=</span> <span class="n">siblings</span> <span class="k">if</span> <span class="n">siblings</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span>
+        <span class="n">attributes</span> <span class="o">=</span> <span class="n">xml</span><span class="o">.</span><span class="n">attrib</span>
+        <span class="nb">type</span> <span class="o">=</span> <span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span>
+        <span class="nb">id</span> <span class="o">=</span> <span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;id&#39;</span> <span class="ow">in</span> <span class="n">attributes</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">id</span> <span class="o">=</span> <span class="n">Block</span><span class="o">.</span><span class="n">_ID_COUNT</span>
+            <span class="n">Block</span><span class="o">.</span><span class="n">_ID_COUNT</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">type_parts</span> <span class="o">=</span> <span class="nb">type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">type_parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">Block</span><span class="o">.</span><span class="n">_CATEGORIES</span> <span class="ow">and</span> <span class="n">lang_ver</span> <span class="o">&lt;</span> <span class="mi">17</span><span class="p">:</span>
+            <span class="c1"># likely old-format blocks code with component names in block types</span>
+            <span class="k">if</span> <span class="n">type_parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">screen</span><span class="o">.</span><span class="n">components</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">type_parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;setproperty&#39;</span><span class="p">:</span>
+                    <span class="c1"># Old-style property setter</span>
+                    <span class="nb">type</span> <span class="o">=</span> <span class="s1">&#39;component_set_get&#39;</span>
+                <span class="k">elif</span> <span class="n">type_parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;getproperty&#39;</span><span class="p">:</span>
+                    <span class="c1"># Old-style property getter</span>
+                    <span class="nb">type</span> <span class="o">=</span> <span class="s1">&#39;component_set_get&#39;</span>
+                <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">xml</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">xml</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;statement&#39;</span> <span class="ow">and</span> <span class="s1">&#39;name&#39;</span> <span class="ow">in</span> <span class="n">xml</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">attrib</span> <span class="ow">and</span> \
+                        <span class="n">xml</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;DO&#39;</span><span class="p">:</span>
+                    <span class="c1"># Old-style event handler</span>
+                    <span class="nb">type</span> <span class="o">=</span> <span class="s1">&#39;component_event&#39;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Old-style method call</span>
+                    <span class="nb">type</span> <span class="o">=</span> <span class="s1">&#39;component_method&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Unknown block type: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">type_parts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">block</span> <span class="o">=</span> <span class="n">Block</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="nb">type</span><span class="p">)</span>
+        <span class="n">screen</span><span class="o">.</span><span class="n">_blocks</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">block</span>
+        <span class="n">block</span><span class="o">.</span><span class="n">screen</span> <span class="o">=</span> <span class="n">screen</span>
+        <span class="n">block</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
+        <span class="n">block</span><span class="o">.</span><span class="n">logical_parent</span> <span class="o">=</span> <span class="n">parent</span>
+        <span class="n">siblings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">block</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;x&#39;</span> <span class="ow">in</span> <span class="n">attributes</span> <span class="ow">and</span> <span class="s1">&#39;y&#39;</span> <span class="ow">in</span> <span class="n">attributes</span><span class="p">:</span>  <span class="c1"># Top level block</span>
+            <span class="n">block</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">block</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">],</span> <span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s1">&#39;inline&#39;</span> <span class="ow">in</span> <span class="n">attributes</span><span class="p">:</span>
+            <span class="n">block</span><span class="o">.</span><span class="n">inline</span> <span class="o">=</span> <span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;inline&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;true&#39;</span>
+        <span class="k">if</span> <span class="s1">&#39;disabled&#39;</span> <span class="ow">in</span> <span class="n">attributes</span> <span class="ow">and</span> <span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;disabled&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;true&#39;</span><span class="p">:</span>
+            <span class="n">block</span><span class="o">.</span><span class="n">disabled</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">block</span><span class="o">.</span><span class="n">logically_disabled</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="n">connection_type</span> <span class="o">==</span> <span class="s1">&#39;value&#39;</span> <span class="ow">or</span> <span class="n">connection_type</span> <span class="o">==</span> <span class="s1">&#39;statement&#39;</span><span class="p">:</span>
+            <span class="n">block</span><span class="o">.</span><span class="n">logically_disabled</span> <span class="o">=</span> <span class="n">block</span><span class="o">.</span><span class="n">disabled</span> <span class="ow">or</span> <span class="n">parent</span><span class="o">.</span><span class="n">logically_disabled</span>
+        <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">xml</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;mutation&#39;</span> <span class="ow">or</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="n">_html</span><span class="p">(</span><span class="s1">&#39;mutation&#39;</span><span class="p">):</span>
+                <span class="n">block</span><span class="o">.</span><span class="n">mutation</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">child</span><span class="o">.</span><span class="n">attrib</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">type</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;component_&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="s1">&#39;is_generic&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">block</span><span class="o">.</span><span class="n">mutation</span> <span class="ow">or</span>
+                                                      <span class="n">block</span><span class="o">.</span><span class="n">mutation</span><span class="p">[</span><span class="s1">&#39;is_generic&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;false&#39;</span><span class="p">):</span>
+                    <span class="n">block</span><span class="o">.</span><span class="n">component</span> <span class="o">=</span> <span class="n">screen</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">block</span><span class="o">.</span><span class="n">mutation</span><span class="p">[</span><span class="s1">&#39;instance_name&#39;</span><span class="p">]]</span>
+            <span class="k">elif</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;comment&#39;</span> <span class="ow">or</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="n">_html</span><span class="p">(</span><span class="s1">&#39;comment&#39;</span><span class="p">):</span>
+                <span class="n">block</span><span class="o">.</span><span class="n">comment</span> <span class="o">=</span> <span class="n">child</span><span class="o">.</span><span class="n">text</span>
+            <span class="k">elif</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="ow">in</span> <span class="p">{</span><span class="s1">&#39;field&#39;</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="n">_html</span><span class="p">(</span><span class="s1">&#39;field&#39;</span><span class="p">),</span> <span class="n">_html</span><span class="p">(</span><span class="s1">&#39;title&#39;</span><span class="p">)}:</span>
+                <span class="n">block</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="n">child</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">child</span><span class="o">.</span><span class="n">text</span>
+            <span class="k">elif</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;value&#39;</span> <span class="ow">or</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="n">_html</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">):</span>
+                <span class="n">block</span><span class="o">.</span><span class="n">inputs</span><span class="p">[</span><span class="n">child</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">block</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">child</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">child_block</span> <span class="o">=</span> <span class="n">Block</span><span class="o">.</span><span class="n">from_xml</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">child</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">lang_ver</span><span class="p">,</span> <span class="n">block</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">child</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]],</span>
+                                             <span class="n">parent</span><span class="o">=</span><span class="n">block</span><span class="p">,</span> <span class="n">connection_type</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">)</span>
+                <span class="n">child_block</span><span class="o">.</span><span class="n">output</span> <span class="o">=</span> <span class="n">block</span>
+                <span class="n">block</span><span class="o">.</span><span class="n">ordered_inputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">child_block</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;statement&#39;</span> <span class="ow">or</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="n">_html</span><span class="p">(</span><span class="s1">&#39;statement&#39;</span><span class="p">):</span>
+                <span class="n">block</span><span class="o">.</span><span class="n">inputs</span><span class="p">[</span><span class="n">child</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">block</span><span class="o">.</span><span class="n">statements</span><span class="p">[</span><span class="n">child</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">child_block</span> <span class="o">=</span> <span class="n">Block</span><span class="o">.</span><span class="n">from_xml</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">child</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">lang_ver</span><span class="p">,</span> <span class="n">block</span><span class="o">.</span><span class="n">statements</span><span class="p">[</span><span class="n">child</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]],</span>
+                                             <span class="n">parent</span><span class="o">=</span><span class="n">block</span><span class="p">,</span> <span class="n">connection_type</span><span class="o">=</span><span class="s1">&#39;statement&#39;</span><span class="p">)</span>
+                <span class="n">block</span><span class="o">.</span><span class="n">ordered_inputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">child_block</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">child_block</span> <span class="ow">in</span> <span class="n">block</span><span class="o">.</span><span class="n">statements</span><span class="p">[</span><span class="n">child</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]]:</span>
+                    <span class="n">child_block</span><span class="o">.</span><span class="n">logical_parent</span> <span class="o">=</span> <span class="n">block</span>
+            <span class="k">elif</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;next&#39;</span> <span class="ow">or</span> <span class="n">child</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="n">_html</span><span class="p">(</span><span class="s1">&#39;next&#39;</span><span class="p">):</span>
+                <span class="n">child_block</span> <span class="o">=</span> <span class="n">Block</span><span class="o">.</span><span class="n">from_xml</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">child</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">lang_ver</span><span class="p">,</span> <span class="n">siblings</span><span class="o">=</span><span class="n">siblings</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="n">block</span><span class="p">,</span>
+                                             <span class="n">connection_type</span><span class="o">=</span><span class="s1">&#39;next&#39;</span><span class="p">)</span>
+                <span class="n">block</span><span class="o">.</span><span class="n">next</span> <span class="o">=</span> <span class="n">child_block</span>
+        <span class="k">return</span> <span class="n">block</span></div>
+
+<div class="viewcode-block" id="Block.children"><a class="viewcode-back" href="../../aiatools.html#aiatools.common.Block.children">[docs]</a>    <span class="k">def</span> <span class="nf">children</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">reduce</span><span class="p">(</span><span class="nb">list</span><span class="o">.</span><span class="fm">__add__</span><span class="p">,</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="p">[])</span> <span class="o">+</span> \
+               <span class="n">reduce</span><span class="p">(</span><span class="nb">list</span><span class="o">.</span><span class="fm">__add__</span><span class="p">,</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">statements</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="p">[])</span></div>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">(</span><span class="si">%r</span><span class="s1">, </span><span class="si">%r</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">description</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">,</span>
+            <span class="s1">&#39;disabled&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">disabled</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">description</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span>
+            <span class="n">description</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">description</span><span class="p">[</span><span class="s1">&#39;comment&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mutation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">description</span><span class="p">[</span><span class="s1">&#39;mutation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mutation</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">description</span><span class="p">[</span><span class="s1">&#39;fields&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">description</span><span class="p">[</span><span class="s1">&#39;values&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">statements</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">description</span><span class="p">[</span><span class="s1">&#39;statements&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">statements</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">description</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_is_generic</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mutation</span> <span class="ow">and</span> <span class="s1">&#39;is_generic&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mutation</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">mutation</span><span class="p">[</span><span class="s1">&#39;is_generic&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;true&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">)</span> <span class="o">*</span> <span class="mi">31</span> <span class="o">+</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
+
+    <span class="n">generic</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">_get_is_generic</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    True if the block is a generic component block (getter, setter, or method call), otherwise False.</span>
+
+<span class="s2">    :type: bool</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span></div>
+    <span class="c1"># statements = property(_get_statements, doc=&quot;&quot;&quot;</span>
+    <span class="c1"># Access the statements of a block with continuation in an iterable fashion.</span>
+    <span class="c1">#</span>
+    <span class="c1"># :type: list[:class:`Block`]</span>
+    <span class="c1"># &quot;&quot;&quot;)</span>
+
+
+<div class="viewcode-block" id="BlockType"><a class="viewcode-back" href="../../aiatools.html#aiatools.common.BlockType">[docs]</a><span class="k">class</span> <span class="nc">BlockType</span><span class="p">(</span><span class="n">Atom</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">category</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param name:</span>
+<span class="sd">        :type name: str</span>
+<span class="sd">        :param category:</span>
+<span class="sd">        :type category: BlockCategory</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">category</span> <span class="o">=</span> <span class="n">category</span>
+        <span class="n">category</span><span class="o">.</span><span class="n">add_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;BlockType(</span><span class="si">%r</span><span class="s1">, </span><span class="si">%r</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">category</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span></div>
+
+
+<div class="viewcode-block" id="BlockCategory"><a class="viewcode-back" href="../../aiatools.html#aiatools.common.BlockCategory">[docs]</a><span class="k">class</span> <span class="nc">BlockCategory</span><span class="p">(</span><span class="n">Atom</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;aiatools.block_types.</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+
+<div class="viewcode-block" id="BlockCategory.add_type"><a class="viewcode-back" href="../../aiatools.html#aiatools.common.BlockCategory.add_type">[docs]</a>    <span class="k">def</span> <span class="nf">add_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block_type</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param block_type:</span>
+<span class="sd">        :type block_type: BlockType</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span><span class="p">[</span><span class="n">block_type</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">block_type</span></div></div>
+
+
+<div class="viewcode-block" id="Method"><a class="viewcode-back" href="../../aiatools.html#aiatools.common.Method">[docs]</a><span class="k">class</span> <span class="nc">Method</span><span class="p">(</span><span class="n">Atom</span><span class="p">):</span>
+    <span class="c1"># noinspection PyPep8Naming</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">deprecated</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">returnType</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">description</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">deprecated</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">deprecated</span> <span class="o">=</span> <span class="n">deprecated</span> <span class="o">==</span> <span class="s1">&#39;true&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">deprecated</span> <span class="o">=</span> <span class="n">deprecated</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="n">param</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">Parameter</span><span class="p">)</span> <span class="k">else</span> <span class="n">Parameter</span><span class="p">(</span><span class="o">**</span><span class="n">param</span><span class="p">)</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">return_type</span> <span class="o">=</span> <span class="n">returnType</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;Method(</span><span class="si">%s</span><span class="s1">, </span><span class="si">%s</span><span class="s1">, </span><span class="si">%s</span><span class="s1">, </span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> \
+               <span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">description</span><span class="p">),</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deprecated</span><span class="p">),</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="Property"><a class="viewcode-back" href="../../aiatools.html#aiatools.common.Property">[docs]</a><span class="k">class</span> <span class="nc">Property</span><span class="p">(</span><span class="n">Atom</span><span class="p">):</span>
+    <span class="c1"># noinspection PyPep8Naming</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">editorType</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">defaultValue</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rw</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">deprecated</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">editorArgs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">alwaysSend</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="nb">type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">editor_type</span> <span class="o">=</span> <span class="n">editorType</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_value</span> <span class="o">=</span> <span class="n">defaultValue</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">description</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rw</span> <span class="o">=</span> <span class="n">rw</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">deprecated</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">deprecated</span> <span class="o">=</span> <span class="n">deprecated</span> <span class="o">==</span> <span class="s1">&#39;true&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">deprecated</span> <span class="o">=</span> <span class="n">deprecated</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">editor_args</span> <span class="o">=</span> <span class="n">editorArgs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">always_send</span> <span class="o">=</span> <span class="n">alwaysSend</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">component</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;Property(</span><span class="si">%r</span><span class="s1">, </span><span class="si">%r</span><span class="s1">, </span><span class="si">%r</span><span class="s1">, </span><span class="si">%r</span><span class="s1">, </span><span class="si">%r</span><span class="s1">, </span><span class="si">%r</span><span class="s1">, </span><span class="si">%r</span><span class="s1">)&#39;</span> <span class="o">%</span> \
+               <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">editor_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rw</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">deprecated</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Event"><a class="viewcode-back" href="../../aiatools.html#aiatools.common.Event">[docs]</a><span class="k">class</span> <span class="nc">Event</span><span class="p">(</span><span class="n">Atom</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">deprecated</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">description</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">deprecated</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">deprecated</span> <span class="o">=</span> <span class="n">deprecated</span> <span class="o">==</span> <span class="s1">&#39;true&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">deprecated</span> <span class="o">=</span> <span class="n">deprecated</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="n">param</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">Parameter</span><span class="p">)</span> <span class="k">else</span> <span class="n">Parameter</span><span class="p">(</span><span class="o">**</span><span class="n">param</span><span class="p">)</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;Event(</span><span class="si">%r</span><span class="s1">, </span><span class="si">%r</span><span class="s1">, </span><span class="si">%r</span><span class="s1">, </span><span class="si">%r</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">deprecated</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Parameter"><a class="viewcode-back" href="../../aiatools.html#aiatools.common.Parameter">[docs]</a><span class="k">class</span> <span class="nc">Parameter</span><span class="p">(</span><span class="n">Atom</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="nb">type</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;Parameter(</span><span class="si">%r</span><span class="s1">, </span><span class="si">%r</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RecursiveIterator"><a class="viewcode-back" href="../../aiatools.html#aiatools.common.RecursiveIterator">[docs]</a><span class="k">class</span> <span class="nc">RecursiveIterator</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">container</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;breadth&#39;</span><span class="p">,</span> <span class="n">test</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stack</span> <span class="o">=</span> <span class="p">[</span><span class="n">container</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">order</span> <span class="o">=</span> <span class="n">order</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">test</span> <span class="o">=</span> <span class="n">test</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">skip</span> <span class="o">=</span> <span class="n">skip</span>
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stack</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stack</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">failed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">test</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">test</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">skip</span> <span class="ow">and</span> <span class="n">failed</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">order</span> <span class="o">==</span> <span class="s1">&#39;breadth&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">stack</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">children</span><span class="p">())</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">order</span> <span class="o">==</span> <span class="s1">&#39;depth&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">stack</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">,</span> <span class="p">[</span><span class="n">child</span> <span class="k">if</span> <span class="n">child</span> <span class="o">!=</span> <span class="n">item</span> <span class="k">else</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">children</span><span class="p">()]))</span> <span class="o">+</span> \
+                             <span class="bp">self</span><span class="o">.</span><span class="n">stack</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Recursive order </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="si">}</span><span class="s1"> is unknown.&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">failed</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">item</span></div>
+
+
+<div class="viewcode-block" id="ComponentType"><a class="viewcode-back" href="../../aiatools.html#aiatools.common.ComponentType">[docs]</a><span class="k">class</span> <span class="nc">ComponentType</span><span class="p">(</span><span class="n">Atom</span><span class="p">):</span>
+    <span class="c1"># noinspection PyShadowingBuiltins</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">properties</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">external</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">category_string</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">help_string</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show_on_palette</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">visible</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">icon_name</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">methods</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">events</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">properties</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">methods</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">methods</span> <span class="o">=</span> <span class="n">methods</span>
+            <span class="k">for</span> <span class="n">method</span> <span class="ow">in</span> <span class="n">methods</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                    <span class="n">method</span> <span class="o">=</span> <span class="n">Method</span><span class="p">(</span><span class="o">**</span><span class="n">method</span><span class="p">)</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">method</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">events</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">events</span> <span class="o">=</span> <span class="n">events</span>
+            <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                    <span class="n">event</span> <span class="o">=</span> <span class="n">Event</span><span class="p">(</span><span class="o">**</span><span class="n">event</span><span class="p">)</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">properties</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">properties</span> <span class="o">=</span> <span class="n">properties</span>
+            <span class="k">for</span> <span class="nb">property</span> <span class="ow">in</span> <span class="n">properties</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">property</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                    <span class="nb">property</span> <span class="o">=</span> <span class="n">Property</span><span class="p">(</span><span class="o">**</span><span class="nb">property</span><span class="p">)</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">property</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">property</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;aiatools.component_types.</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span></div>
+
+
+<div class="viewcode-block" id="Extension"><a class="viewcode-back" href="../../aiatools.html#aiatools.common.Extension">[docs]</a><span class="k">class</span> <span class="nc">Extension</span><span class="p">(</span><span class="n">ComponentType</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Extension</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">external</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="Component"><a class="viewcode-back" href="../../aiatools.html#aiatools.common.Component">[docs]</a><span class="k">class</span> <span class="nc">Component</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="n">_DISALLOWED_KEYS</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;$Components&#39;</span><span class="p">,</span> <span class="s1">&#39;$Name&#39;</span><span class="p">,</span> <span class="s1">&#39;$Type&#39;</span><span class="p">,</span> <span class="s1">&#39;$Version&#39;</span><span class="p">,</span> <span class="s1">&#39;Uuid&#39;</span><span class="p">}</span>
+    <span class="n">TYPES</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">uuid</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="n">properties</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param parent:</span>
+<span class="sd">        :type parent: ComponentContainer|None</span>
+<span class="sd">        :param uuid:</span>
+<span class="sd">        :param type:</span>
+<span class="sd">        :param name:</span>
+<span class="sd">        :param version:</span>
+<span class="sd">        :param properties:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">uuid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span> <span class="o">=</span> <span class="n">uuid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="nb">type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">version</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">properties</span> <span class="o">=</span> <span class="n">properties</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">/</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">parent</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="k">if</span> <span class="n">parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># return &#39;%s(%r, %r, %r, %r, %r, %r)&#39; % (self.__class__.__name__, self.parent, self.uuid, self.type, self.name,</span>
+        <span class="c1">#                                        self.version, self.properties)</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">(</span><span class="si">%r</span><span class="s1">, </span><span class="si">%r</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Component.children"><a class="viewcode-back" href="../../aiatools.html#aiatools.common.Component.children">[docs]</a>    <span class="k">def</span> <span class="nf">children</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[]</span></div>
+
+<div class="viewcode-block" id="Component.from_json"><a class="viewcode-back" href="../../aiatools.html#aiatools.common.Component.from_json">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_json</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">json_repr</span><span class="p">):</span>
+        <span class="n">typename</span> <span class="o">=</span> <span class="n">json_repr</span><span class="p">[</span><span class="s1">&#39;$Type&#39;</span><span class="p">]</span>
+        <span class="nb">type</span> <span class="o">=</span> <span class="n">Component</span><span class="o">.</span><span class="n">TYPES</span><span class="p">[</span><span class="n">typename</span><span class="p">]</span> <span class="k">if</span> <span class="n">typename</span> <span class="ow">in</span> <span class="n">Component</span><span class="o">.</span><span class="n">TYPES</span> <span class="k">else</span> <span class="n">Extension</span><span class="p">(</span><span class="n">typename</span><span class="p">)</span>
+        <span class="n">properties</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">json_repr</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">Component</span><span class="o">.</span><span class="n">_DISALLOWED_KEYS</span><span class="p">}</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">json_repr</span><span class="p">[</span><span class="s1">&#39;Uuid&#39;</span><span class="p">],</span> <span class="nb">type</span><span class="p">,</span> <span class="n">json_repr</span><span class="p">[</span><span class="s1">&#39;$Name&#39;</span><span class="p">],</span> <span class="n">json_repr</span><span class="p">[</span><span class="s1">&#39;$Version&#39;</span><span class="p">],</span> <span class="n">properties</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="FilterableDict"><a class="viewcode-back" href="../../aiatools.html#aiatools.common.FilterableDict">[docs]</a><span class="k">class</span> <span class="nc">FilterableDict</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
+<div class="viewcode-block" id="FilterableDict.filter"><a class="viewcode-back" href="../../aiatools.html#aiatools.common.FilterableDict.filter">[docs]</a>    <span class="k">def</span> <span class="nf">filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rule</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">rule</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">FilterableDict</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">rule</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)})</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016-2020 Evan W. Patton
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
