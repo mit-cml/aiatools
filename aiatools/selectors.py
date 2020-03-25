@@ -35,7 +35,7 @@ class AggregateOperations:
 
             >>> project.components().count()
             4
-            >>> project.blocks(topLevel).count(group_by=type)
+            >>> project.blocks(top_level).count(group_by=type)
             {'component_event': 2}
             >>> project.blocks().count(group_by=(type, mutation.component_type))
             {('component_event', 'Map'): 1, ('component_method', 'Map'): 2, ('component_event', 'Button'): 1, ('component_set_get', 'Marker'): 4}
@@ -72,7 +72,7 @@ class AggregateOperations:
 
         .. doctest::
 
-            >>> project.blocks(topLevel).avg(height)
+            >>> project.blocks(top_level).avg(height)
             4.0
             >>> project.blocks().avg(depth)
             3.347826086956522

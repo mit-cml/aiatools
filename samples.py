@@ -94,7 +94,7 @@ def main():
         print('Count of all Map component blocks =', aia.blocks(mutation.component_type == Map).count())
         print('Count of all Map component blocks, grouped by block type =', \
             aia.blocks(mutation.component_type == Map).count(group_by=type))
-        print('Average depth of the block tree starting at the root blocks =', aia.blocks(topLevel).avg(height))
+        print('Average depth of the block tree starting at the root blocks =', aia.blocks(top_level).avg(height))
         print('Count of generic blocks, grouped by block type and mutation component type =', \
             aia.blocks(mutation.is_generic).count(group_by=(type, mutation.component_type)))
         print('Descendants of logic blocks =', aia.blocks(category == Logic).descendants())

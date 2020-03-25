@@ -148,7 +148,7 @@ def hasDescendant(target):
     -------
     Count the number of top-level blocks that have control_if blocks as descendants.
 
-        >>> project.blocks(topLevel & hasDescendant(type == controls_if)).count()
+        >>> project.blocks(top_level & hasDescendant(type == controls_if)).count()
         1
 
     Parameters
@@ -209,7 +209,7 @@ class HeightAttribute(Functor):
     -------
     Get the heights of the block stacks in the project.
 
-        >>> project.blocks(topLevel).map(height)
+        >>> project.blocks(top_level).map(height)
         [2, 6]
     """
     def __init__(self):
@@ -342,22 +342,22 @@ version = NamedAttribute('version')
 category = NamedAttributeTuple(('category', 'category_string'))
 """Returns the category for the entity."""
 
-helpString = NamedAttribute('help_string')
+help_string = NamedAttribute('help_string')
 """Returns the help string for the entity."""
 
-showOnPalette = NamedAttribute('show_on_palette')
+show_on_palette = NamedAttribute('show_on_palette')
 """Returns true if the entity is shown in the palette."""
 
 visible = NamedAttribute('visible')
 """Returns true if the entity is visible."""
 
-nonVisible = NotExpression(visible)
+non_visible = NotExpression(visible)
 """Returns true if the entity is nonvisible."""
 
-iconName = NamedAttribute('iconName')
+icon_name = NamedAttribute('iconName')
 """Returns the icon for the component."""
 
-returnType = NamedAttribute('return_type')
+return_type = NamedAttribute('return_type')
 """Gets the return type of the block."""
 
 generic = NamedAttribute('generic')
@@ -376,7 +376,7 @@ logically_enabled = ~logically_disabled
 enabled = NamedAttribute('Enabled') | ~disabled
 """Tests whether the entity is enabled."""
 
-topLevel = ComputedAttribute(lambda b: isinstance(b, Block) and b.parent is None)
+top_level = ComputedAttribute(lambda b: isinstance(b, Block) and b.parent is None)
 """Tests whether the block is at the top level."""
 
 parent = NamedAttribute('parent')
