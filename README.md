@@ -4,6 +4,12 @@ AIA Tools is a Python library for interacting with App Inventor Application (AIA
 ## Installing
 
 ```shell
+$ pip install aiatools
+```
+
+For development:
+
+```shell
 $ pyenv install 3.6.3
 $ pyenv virtualenv 3.6.3 aiatools
 $ pyenv activate aiatools
