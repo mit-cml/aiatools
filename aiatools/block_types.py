@@ -23,6 +23,7 @@ Lists = BlockCategory('Lists')
 Colors = BlockCategory('Colors')
 Variables = BlockCategory('Variables')
 Procedures = BlockCategory('Procedures')
+Dictionaries = BlockCategory('Dictionaries')
 # Components is plural to prevent collision with aiatools.common.Component
 Components = BlockCategory('Components')
 
@@ -31,7 +32,7 @@ for _name in ['controls_if', 'controls_forRange', 'controls_forEach', 'controls_
               'controls_do_then_return', 'controls_eval_but_ignore', 'controls_openAnotherScreen',
               'controls_openAnotherScreenWithStartValue', 'controls_getStartValue', 'controls_closeScreen',
               'controls_closeScreenWithValue', 'controls_closeApplication', 'controls_getPlainStartText',
-              'controls_closeScreenWithPlainText']:
+              'controls_closeScreenWithPlainText', 'controls_break']:
     define_block_type(_name, Control)
 
 # Logic category blocks
@@ -40,10 +41,10 @@ for _name in ['logic_boolean', 'logic_false', 'logic_negate', 'logic_compare', '
 
 # Math category blocks
 for _name in ['math_number', 'math_compare', 'math_add', 'math_subtract', 'math_multiply', 'math_division',
-              'math_power', 'math_random_int', 'math_random_float', 'math_random_set_seed', 'math_on_list',
-              'math_single', 'math_abs', 'math_neg', 'math_round', 'math_ceiling', 'math_floor', 'math_divide',
-              'math_trig', 'math_cos', 'math_tan', 'math_atan2', 'math_convert_angles', 'math_format_as_decimal',
-              'math_is_a_number', 'math_convert_number']:
+              'math_power', 'math_bitwise', 'math_random_int', 'math_random_float', 'math_random_set_seed',
+              'math_on_list', 'math_single', 'math_abs', 'math_neg', 'math_round', 'math_ceiling', 'math_floor',
+              'math_divide', 'math_trig', 'math_cos', 'math_tan', 'math_atan2', 'math_convert_angles',
+              'math_format_as_decimal', 'math_is_a_number', 'math_convert_number']:
     define_block_type(_name, Math)
 
 # Text category blocks
@@ -60,8 +61,16 @@ for _name in ['lists_create_with', 'lists_create_with_item', 'lists_add_items', 
               'lists_is_empty', 'lists_pick_random_item', 'lists_position_in', 'lists_select_item', 'lists_insert_item',
               'lists_replace_item', 'lists_remove_item', 'lists_append_list', 'lists_copy', 'lists_is_list',
               'lists_to_csv_row', 'lists_to_csv_table', 'lists_from_csv_row', 'lists_from_csv_table',
-              'lists_lookup_in_pairs']:
+              'lists_lookup_in_pairs', 'lists_join_with_separator']:
     define_block_type(_name, Lists)
+
+# Dictionaries category blocks
+for _name in ['dictionaries_create_with', 'pair', 'dictionaries_lookup', 'dictionaries_set_pair',
+              'dictionaries_delete_pair', 'dictionaries_recursive_lookup', 'dictionaries_recursive_set',
+              'dictionaries_getters', 'dictionaries_get_values', 'dictionaries_is_key_in', 'dictionaries_length',
+              'dictionaries_alist_to_dict', 'dictionaries_dict_to_alist', 'dictionaries_copy',
+              'dictionaries_combine_dicts', 'dictionaries_walk_tree', 'dictionaries_walk_all', 'dictionaries_is_dict']:
+    define_block_type(_name, Dictionaries)
 
 # Colors category blocks
 for _name in ['color_black', 'color_white', 'color_red', 'color_pink', 'color_orange', 'color_yellow', 'color_green',
