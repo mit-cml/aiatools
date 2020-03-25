@@ -218,9 +218,9 @@ class Selectors:
         Selector[Screen]
             A selector over the screens containing the entities in the collection.
 
-        .. todo::
-
-            (ewpatton) Implement subset selection on screens
+        Todo
+        ----
+            - (ewpatton) Implement subset selection on screens
         """
         return Selector({item.id: item for item in self
                          if (isinstance(item.type, ComponentType) and item.type.name == 'Form') or item.type == 'Form'})
@@ -234,9 +234,9 @@ class Selectors:
         Selector[Component]
             A selector for further selection of entities. The selector will only contain :py:class:`Component`.
 
-        .. todo::
-
-            (ewpatton) Implement subset selection on components
+        Todo
+        ----
+            - (ewpatton) Implement subset selection on components
         """
         return Selector({item.id: item for item in self if isinstance(item, Component)})
 
@@ -249,9 +249,9 @@ class Selectors:
         Selector[Block]
             A selector for further selection of entities. The selector will only contain :py:class:`Block`.
 
-        .. todo::
-
-            (ewpatton) Implement subset selection on blocks.
+        Todo
+        ----
+            - (ewpatton) Implement subset selection on blocks.
         """
         return Selector({item.id: item for item in self if isinstance(item, Block)})
 
@@ -269,10 +269,10 @@ class Selectors:
             A selector over the callers (if any) of the callable blocks contained in the collection. The selector will
             only contain :py:class:`Block`.
 
-        .. todo::
-
-            (ewpatton) Implement subset selection on the blocks
-            (ewpatton) Add call graph so that component method/event blocks can be included
+        Todo
+        ----
+            - (ewpatton) Implement subset selection on the blocks
+            - (ewpatton) Add call graph so that component method/event blocks can be included
         """
         _filter = args[0] if len(args) > 0 else lambda x: True
         return Selector({block.id: block for item in self
@@ -295,10 +295,10 @@ class Selectors:
             A selector over the callees (if any) of the caller blocks contained in the collection. The selector will
             only container :py:class:`Block`.
 
-        .. todo::
-
-            (ewpatton) Implement subset selection on the blocks
-            (ewpatton) Add call graph so that component method/event blocks can be included
+        Todo
+        ----
+            - (ewpatton) Implement subset selection on the blocks
+            - (ewpatton) Add call graph so that component method/event blocks can be included
         """
         pass
 
@@ -312,9 +312,9 @@ class Selectors:
             Retrieve the __branch_id__th branch of any blocks in this collection that have a statement input. This can
             be used to walk an if-elseif-else block, for example.
 
-        .. todo::
-
-            (ewpatton) Implementation
+        Todo
+        ----
+            - (ewpatton) Implementation
         """
         pass
 
