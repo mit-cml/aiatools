@@ -24,7 +24,9 @@ def plot(sel, title, y_label):
     ax.set_title(title)
     ax.set_xticks(ind)
     ax.set_xticklabels(iter(sel.keys()))
-    plt.xticks(rotation=90)
+    ax.margins(x=0.01, y=0.01)
+    fig.subplots_adjust(bottom=0.35)
+    plt.xticks(rotation=45, va='top', ha='right')
     plt.show()
 
 
