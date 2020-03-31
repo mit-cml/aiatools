@@ -6,7 +6,7 @@ with open('README.md') as f:
     long_description = f.read()
 
 setup(name='aiatools',
-      version='0.1.2',
+      version='0.1.3',
       description='Tools for extracting information from App Inventor AIA files',
       long_description=long_description,
       long_description_content_type="text/markdown",
