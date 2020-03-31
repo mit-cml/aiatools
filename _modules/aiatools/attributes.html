@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>aiatools.attributes &mdash; AIA Tools 0.1.0-py3 documentation</title>
+  <title>aiatools.attributes &mdash; AIA Tools 0.1.2 documentation</title>
   
 
   
@@ -17,34 +17,32 @@
   
 
   
-  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/language_data.js"></script>
-    
-    <script type="text/javascript" src="../../_static/js/theme.js"></script>
 
+  
+  
     
 
   
+
   <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
+
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
+        <div class="wy-side-nav-search">
           
 
           
@@ -164,10 +162,10 @@
 <span class="sd">    project = AIAFile(&#39;test_aias/LondonCholeraMap.aia&#39;)</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">aiatools.algebra</span> <span class="kn">import</span> <span class="n">ComputedAttribute</span>
-<span class="kn">from</span> <span class="nn">.algebra</span> <span class="kn">import</span> <span class="n">Functor</span><span class="p">,</span> <span class="n">NotExpression</span>
-<span class="kn">from</span> <span class="nn">.common</span> <span class="kn">import</span> <span class="n">Block</span>
-<span class="kn">from</span> <span class="nn">.selectors</span> <span class="kn">import</span> <span class="n">select</span>
+<span class="kn">from</span> <span class="nn">aiatools.algebra</span> <span class="k">import</span> <span class="n">ComputedAttribute</span>
+<span class="kn">from</span> <span class="nn">.algebra</span> <span class="k">import</span> <span class="n">Functor</span><span class="p">,</span> <span class="n">NotExpression</span>
+<span class="kn">from</span> <span class="nn">.common</span> <span class="k">import</span> <span class="n">Block</span><span class="p">,</span> <span class="n">BlockKind</span>
+<span class="kn">from</span> <span class="nn">.selectors</span> <span class="k">import</span> <span class="n">select</span>
 <span class="kn">import</span> <span class="nn">collections</span>
 
 
@@ -184,7 +182,7 @@
 <span class="sd">    Retrieve any Form entities in the project:</span>
 
 <span class="sd">        &gt;&gt;&gt; project.components(NamedAttribute(&#39;type&#39;) == Form)</span>
-<span class="sd">        [Screen(u&#39;Screen1&#39;)]</span>
+<span class="sd">        [Screen(&#39;Screen1&#39;)]</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    __________</span>
@@ -193,24 +191,24 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># noinspection PyShadowingNames</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
             <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">NamedAttribute</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">name</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">NamedAttribute</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">(</span><span class="si">%s</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span></div>
 
 
@@ -228,30 +226,30 @@
 <span class="sd">        The name(s) of the attribute(s) to be retrieved. Giving a 1-tuple is less efficient than defining and using the</span>
 <span class="sd">        equivalent :py:class:`NamedAttribute` instance.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">NamedAttributeTuple</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">names</span> <span class="o">=</span> <span class="n">names</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">_name</span><span class="p">):</span>
                 <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">_name</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">NamedAttributeTuple</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">names</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">NamedAttributeTuple</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">(</span><span class="si">%r</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="hasAncestor"><a class="viewcode-back" href="../../aiatools.html#aiatools.attributes.hasAncestor">[docs]</a><span class="k">def</span> <span class="nf">hasAncestor</span><span class="p">(</span><span class="n">target</span><span class="p">):</span>
+<div class="viewcode-block" id="has_ancestor"><a class="viewcode-back" href="../../aiatools.html#aiatools.attributes.has_ancestor">[docs]</a><span class="k">def</span> <span class="nf">has_ancestor</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Constructs a new ComputedAttribute that accepts an entity if and only if the entity has an ancestor that matches the</span>
 <span class="sd">    given ``target`` clause.</span>
@@ -261,7 +259,7 @@
 <span class="sd">    Count the number of :py:data:`~.block_type.text` blocks with an ancestor that is a</span>
 <span class="sd">    :py:data:`~.block_type.logic_compare` block.</span>
 
-<span class="sd">        &gt;&gt;&gt; project.blocks((type == text) &amp; hasAncestor(type == logic_compare)).count()</span>
+<span class="sd">        &gt;&gt;&gt; project.blocks((type == text) &amp; has_ancestor(type == logic_compare)).count()</span>
 <span class="sd">        1</span>
 
 <span class="sd">    Parameters</span>
@@ -280,7 +278,9 @@
             <span class="k">return</span> <span class="kc">False</span>
         <span class="n">b</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">parent</span>  <span class="c1"># Skip b</span>
         <span class="k">while</span> <span class="n">b</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">)</span> <span class="ow">and</span> <span class="n">target</span><span class="p">(</span><span class="n">b</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">target</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">)</span> <span class="ow">and</span> <span class="n">target</span><span class="p">(</span><span class="n">b</span><span class="p">):</span>
                 <span class="k">return</span> <span class="kc">True</span>
             <span class="k">elif</span> <span class="n">b</span> <span class="ow">is</span> <span class="n">target</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">True</span>
@@ -289,7 +289,7 @@
     <span class="k">return</span> <span class="n">ComputedAttribute</span><span class="p">(</span><span class="n">checkAncestor</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="hasDescendant"><a class="viewcode-back" href="../../aiatools.html#aiatools.attributes.hasDescendant">[docs]</a><span class="k">def</span> <span class="nf">hasDescendant</span><span class="p">(</span><span class="n">target</span><span class="p">):</span>
+<div class="viewcode-block" id="has_descendant"><a class="viewcode-back" href="../../aiatools.html#aiatools.attributes.has_descendant">[docs]</a><span class="k">def</span> <span class="nf">has_descendant</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Constructs a new ComputedAttribute that accepts an entity if and only if the entity has a descendant that matches</span>
 <span class="sd">    the given ``target`` clause.</span>
@@ -298,7 +298,7 @@
 <span class="sd">    -------</span>
 <span class="sd">    Count the number of top-level blocks that have control_if blocks as descendants.</span>
 
-<span class="sd">        &gt;&gt;&gt; project.blocks(top_level &amp; hasDescendant(type == controls_if)).count()</span>
+<span class="sd">        &gt;&gt;&gt; project.blocks(top_level &amp; has_descendant(type == controls_if)).count()</span>
 <span class="sd">        1</span>
 
 <span class="sd">    Parameters</span>
@@ -318,7 +318,9 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="s1">&#39;children&#39;</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">b</span><span class="o">.</span><span class="n">children</span><span class="p">():</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">)</span> <span class="ow">and</span> <span class="n">target</span><span class="p">(</span><span class="n">child</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">target</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">)</span> <span class="ow">and</span> <span class="n">target</span><span class="p">(</span><span class="n">child</span><span class="p">):</span>
                 <span class="k">return</span> <span class="kc">True</span>
             <span class="k">elif</span> <span class="n">child</span> <span class="ow">is</span> <span class="n">target</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">True</span>
@@ -328,7 +330,7 @@
     <span class="k">return</span> <span class="n">ComputedAttribute</span><span class="p">(</span><span class="n">checkDescendant</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="rootBlock"><a class="viewcode-back" href="../../aiatools.html#aiatools.attributes.rootBlock">[docs]</a><span class="k">def</span> <span class="nf">rootBlock</span><span class="p">(</span><span class="n">block</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_root_block</span><span class="p">(</span><span class="n">block</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Looks up the root of the stack of blocks containing the given ``block``.</span>
 
@@ -347,7 +349,10 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">while</span> <span class="n">block</span><span class="o">.</span><span class="n">logical_parent</span><span class="p">:</span>
         <span class="n">block</span> <span class="o">=</span> <span class="n">block</span><span class="o">.</span><span class="n">logical_parent</span>
-    <span class="k">return</span> <span class="n">block</span></div>
+    <span class="k">return</span> <span class="n">block</span>
+
+
+<span class="n">root_block</span> <span class="o">=</span> <span class="n">ComputedAttribute</span><span class="p">(</span><span class="n">_root_block</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="HeightAttribute"><a class="viewcode-back" href="../../aiatools.html#aiatools.attributes.HeightAttribute">[docs]</a><span class="k">class</span> <span class="nc">HeightAttribute</span><span class="p">(</span><span class="n">Functor</span><span class="p">):</span>
@@ -362,11 +367,11 @@
 <span class="sd">        &gt;&gt;&gt; project.blocks(top_level).map(height)</span>
 <span class="sd">        [2, 6]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">precomputed</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="c1"># noinspection PyShadowingNames</span>
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">block_or_component</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">block_or_component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">precomputed</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">precomputed</span><span class="p">[</span><span class="n">block_or_component</span><span class="p">]</span>
@@ -389,9 +394,9 @@
 <span class="sd">    Get the depth of all leaves in the project.</span>
 
 <span class="sd">        &gt;&gt;&gt; project.blocks(leaf).map(depth)</span>
-<span class="sd">        [4, 4, 5, 5, 5, 5, 5, 6, 2, 2, 4]</span>
+<span class="sd">        [2, 2, 4, 4, 4, 6, 5, 5, 5, 5, 5]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">precomputed</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="nd">@staticmethod</span>
@@ -402,7 +407,7 @@
             <span class="k">return</span> <span class="n">block_or_component</span><span class="o">.</span><span class="n">parent</span>
 
     <span class="c1"># noinspection PyShadowingNames</span>
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">block_or_component</span> <span class="o">=</span> <span class="n">DepthAttribute</span><span class="o">.</span><span class="n">_get_parent</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="n">depth</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">while</span> <span class="n">block_or_component</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -424,10 +429,10 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">_interned</span> <span class="o">=</span> <span class="p">{}</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">child</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">child</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">child</span> <span class="o">=</span> <span class="n">child</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;mutation&#39;</span><span class="p">):</span>
             <span class="n">_mutation</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">mutation</span>
             <span class="k">if</span> <span class="n">_mutation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -437,12 +442,12 @@
                     <span class="k">return</span> <span class="n">_mutation</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">child</span><span class="p">]</span>
         <span class="k">return</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">item</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_MutationHelper</span><span class="o">.</span><span class="n">_interned</span><span class="p">:</span>
             <span class="n">_MutationHelper</span><span class="o">.</span><span class="n">_interned</span><span class="p">[</span><span class="n">item</span><span class="p">]</span> <span class="o">=</span> <span class="n">_MutationHelper</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">_MutationHelper</span><span class="o">.</span><span class="n">_interned</span><span class="p">[</span><span class="n">item</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span>
 
 
@@ -458,10 +463,10 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">_interned</span> <span class="o">=</span> <span class="p">{}</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">child</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">child</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">child</span> <span class="o">=</span> <span class="n">child</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;fields&#39;</span><span class="p">):</span>
             <span class="n">_fields</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">fields</span>
             <span class="k">if</span> <span class="n">_fields</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -471,7 +476,7 @@
                     <span class="k">return</span> <span class="n">_fields</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">child</span><span class="p">]</span>
         <span class="k">return</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">item</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_FieldHelper</span><span class="o">.</span><span class="n">_interned</span><span class="p">:</span>
             <span class="n">_FieldHelper</span><span class="o">.</span><span class="n">_interned</span><span class="p">[</span><span class="n">item</span><span class="p">]</span> <span class="o">=</span> <span class="n">_FieldHelper</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">_FieldHelper</span><span class="o">.</span><span class="n">_interned</span><span class="p">[</span><span class="n">item</span><span class="p">]</span>
@@ -482,6 +487,17 @@
 
 <span class="n">name</span> <span class="o">=</span> <span class="n">NamedAttributeTuple</span><span class="p">((</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;instance_name&#39;</span><span class="p">))</span>
 <span class="sd">&quot;&quot;&quot;Returns the name of the entity.&quot;&quot;&quot;</span>
+
+
+<span class="k">def</span> <span class="nf">_kind</span><span class="p">(</span><span class="n">block</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">block</span><span class="o">.</span><span class="n">kind</span>
+    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="n">kind</span> <span class="o">=</span> <span class="n">NamedAttribute</span><span class="p">(</span><span class="s2">&quot;kind&quot;</span><span class="p">)</span>
+<span class="sd">&quot;&quot;&quot;Returns the kind of the entity.&quot;&quot;&quot;</span>
 
 <span class="n">external</span> <span class="o">=</span> <span class="n">NamedAttribute</span><span class="p">(</span><span class="s1">&#39;external&#39;</span><span class="p">)</span>
 <span class="sd">&quot;&quot;&quot;Returns true if the component is an extension.&quot;&quot;&quot;</span>
@@ -573,7 +589,7 @@
 
 <span class="sd">.. doctest::</span>
 
-<span class="sd">    &gt;&gt;&gt; project.blocks(topLevel).avg(height)</span>
+<span class="sd">    &gt;&gt;&gt; project.blocks(top_level).avg(height)</span>
 <span class="sd">    4.0</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
@@ -607,8 +623,18 @@
 <span class="sd">.. doctest::</span>
 
 <span class="sd">    &gt;&gt;&gt; project.blocks(leaf).count(group_by=type)</span>
-<span class="sd">    {&#39;text&#39;: 3, &#39;color_blue&#39;: 2, &#39;lexical_variable_get&#39;: 6}</span>
+<span class="sd">    {&#39;text&#39;: 3, &#39;lexical_variable_get&#39;: 6, &#39;color_blue&#39;: 2}</span>
 <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">declaration</span> <span class="o">=</span> <span class="p">(</span><span class="nb">type</span> <span class="o">==</span> <span class="s1">&#39;component_event&#39;</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="nb">type</span> <span class="o">==</span> <span class="s1">&#39;global_declaration&#39;</span><span class="p">)</span> <span class="o">|</span> <span class="n">is_procedure</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">statement</span> <span class="o">=</span> <span class="n">kind</span> <span class="o">==</span> <span class="n">BlockKind</span><span class="o">.</span><span class="n">STATEMENT</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">value</span> <span class="o">=</span> <span class="n">kind</span> <span class="o">==</span> <span class="n">BlockKind</span><span class="o">.</span><span class="n">VALUE</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">.. testcleanup::</span>
@@ -627,7 +653,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2016-2020 Evan W. Patton
+        &copy; Copyright 2016-2020 Evan W. Patton.
 
     </p>
   </div>
@@ -644,16 +670,32 @@
   
 
 
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.1.2',
+            LANGUAGE:'en',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>
