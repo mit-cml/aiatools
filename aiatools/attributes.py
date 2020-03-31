@@ -101,7 +101,7 @@ class NamedAttributeTuple(Functor):
         return '%s(%r)' % (self.__class__.__name__, self.names)
 
 
-def hasAncestor(target):
+def has_ancestor(target=None):
     """
     Constructs a new ComputedAttribute that accepts an entity if and only if the entity has an ancestor that matches the
     given ``target`` clause.
@@ -111,7 +111,7 @@ def hasAncestor(target):
     Count the number of :py:data:`~.block_type.text` blocks with an ancestor that is a
     :py:data:`~.block_type.logic_compare` block.
 
-        >>> project.blocks((type == text) & hasAncestor(type == logic_compare)).count()
+        >>> project.blocks((type == text) & has_ancestor(type == logic_compare)).count()
         1
 
     Parameters
@@ -130,7 +130,9 @@ def hasAncestor(target):
             return False
         b = b.parent  # Skip b
         while b is not None:
-            if isinstance(target, collections.Callable) and target(b):
+            if target is None:
+                return True
+            elif isinstance(target, collections.Callable) and target(b):
                 return True
             elif b is target:
                 return True
@@ -139,7 +141,7 @@ def hasAncestor(target):
     return ComputedAttribute(checkAncestor)
 
 
-def hasDescendant(target):
+def has_descendant(target=None):
     """
     Constructs a new ComputedAttribute that accepts an entity if and only if the entity has a descendant that matches
     the given ``target`` clause.
@@ -148,7 +150,7 @@ def hasDescendant(target):
     -------
     Count the number of top-level blocks that have control_if blocks as descendants.
 
-        >>> project.blocks(top_level & hasDescendant(type == controls_if)).count()
+        >>> project.blocks(top_level & has_descendant(type == controls_if)).count()
         1
 
     Parameters
@@ -168,7 +170,9 @@ def hasDescendant(target):
         if not hasattr(b, 'children'):
             return False
         for child in b.children():
-            if isinstance(target, collections.Callable) and target(child):
+            if target is None:
+                return True
+            elif isinstance(target, collections.Callable) and target(child):
                 return True
             elif child is target:
                 return True
@@ -178,7 +182,7 @@ def hasDescendant(target):
     return ComputedAttribute(checkDescendant)
 
 
-def rootBlock(block):
+def root_block(block):
     """
     Looks up the root of the stack of blocks containing the given ``block``.
 
@@ -423,7 +427,7 @@ children. For leaf nodes, the height is 0.
 
 .. doctest::
 
-    >>> project.blocks(topLevel).avg(height)
+    >>> project.blocks(top_level).avg(height)
     4.0
 """
 
