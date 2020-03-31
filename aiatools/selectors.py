@@ -11,7 +11,7 @@ over a project.
 """
 
 
-from aiatools.algebra import Expression, AndExpression
+from aiatools.algebra import Expression, AndExpression, identity
 from aiatools.common import Block, Component, ComponentType, FilterableDict, RecursiveIterator
 from aiatools.block_types import procedures_defnoreturn, procedures_defreturn, procedures_callnoreturn, \
     procedures_callreturn
@@ -209,7 +209,7 @@ class Selectors:
     def __init__(self, *args):
         pass
 
-    def screens(self):
+    def screens(self, test=None, *args):
         """
         Select the screens containing the elements in the collection.
 
@@ -222,10 +222,15 @@ class Selectors:
         ----
             - (ewpatton) Implement subset selection on screens
         """
-        return Selector({item.id: item for item in self
-                         if (isinstance(item.type, ComponentType) and item.type.name == 'Form') or item.type == 'Form'})
+        test = identity if test is None else test
+        screens = {item.id: item for item in self
+                   if ((isinstance(item.type, ComponentType) and item.type.name == 'Form') or item.type == 'Form')
+                   and test(item)}
+        block_screens = {item.screen.id: item.screen for item in self if (isinstance(item, Block) and test(item))}
+        screens.update(block_screens)
+        return Selector(screens)
 
-    def components(self):
+    def components(self, test=None, *args):
         """
         Select the subset of entities in the current selection that are :py:class:`Component`.
 
@@ -238,9 +243,10 @@ class Selectors:
         ----
             - (ewpatton) Implement subset selection on components
         """
-        return Selector({item.id: item for item in self if isinstance(item, Component)})
+        test = identity if test is None else test
+        return Selector({item.id: item for item in self if (isinstance(item, Component) and test(item))})
 
-    def blocks(self):
+    def blocks(self, test=None, *args):
         """
         Select blocks under the current node. The following filters can be applied:
 
@@ -253,7 +259,8 @@ class Selectors:
         ----
             - (ewpatton) Implement subset selection on blocks.
         """
-        return Selector({item.id: item for item in self if isinstance(item, Block)})
+        test = identity if test is None else test
+        return Selector({item.id: item for item in self if (isinstance(item, Block) and test(item))})
 
     def callers(self, *args):
         """
