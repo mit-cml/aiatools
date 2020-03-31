@@ -11,7 +11,7 @@ __author__ = 'Evan W. Patton <ewpatton@mit.edu>'
 
 
 def _reduce_expression(expr, op):
-    while isinstance(expr, Expression):
+    while isinstance(expr, Expression) and not isinstance(expr, Atom):
         expr = expr(op)
     return expr
 
@@ -287,7 +287,7 @@ class Atom(Expression):
             return other != self
 
     def __call__(self, operand, *args, **kwargs):
-        raise self
+        return self
 
 
 class Functor(Expression):
@@ -338,7 +338,7 @@ class ComputedAttribute(Functor):
     def __hash__(self):
         return hash(self.functor)
 
-    def __eq__(self, other):
+    def equals(self, other):
         return id(self.functor) == id(other.functor)
 
     def __repr__(self):
