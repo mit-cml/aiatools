@@ -384,22 +384,16 @@ class ComponentType(Atom):
         self.events = None
         self.properties = None
         if methods is not None:
-            self.methods = methods
-            for method in methods:
-                if isinstance(method, dict):
-                    method = Method(**method)
+            self.methods = {name: Method(**m) if isinstance(m, dict) else m for name, m in methods.items()}
+            for name, method in self.methods.items():
                 setattr(self, method.name, method)
         if events is not None:
-            self.events = events
-            for event in events:
-                if isinstance(event, dict):
-                    event = Event(**event)
+            self.events = {name: Event(**e) if isinstance(e, dict) else e for name, e in events.items()}
+            for name, event in self.events.items():
                 setattr(self, event.name, event)
         if properties is not None:
-            self.properties = properties
-            for property in properties:
-                if isinstance(property, dict):
-                    property = Property(**property)
+            self.properties = {name: Property(**p) if isinstance(p, dict) else p for name, p in properties.items()}
+            for name, property in self.properties.items():
                 setattr(self, property.name, property)
 
     def __call__(self, *args, **kwargs):

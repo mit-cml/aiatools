@@ -194,6 +194,10 @@ class Screen(ComponentContainer):
         return self.name
 
 
+def list_to_dict(iterable, key='name'):
+    return {i[key]: i for i in iterable}
+
+
 def _load_component_types():
     """
     Loads the descriptions of App Inventor components from simple_components.json and populates the module with
@@ -202,11 +206,9 @@ def _load_component_types():
     with open(pkg_resources.resource_filename('aiatools', 'simple_components.json')) as _f:
         _component_descriptors = json.load(_f)
         for _descriptor in _component_descriptors:
-            _methods = _descriptor['methods']
-            _events = _descriptor['events']
-            _properties = {}
-            for _prop in _descriptor['properties']:
-                _properties[_prop['name']] = _prop
+            _methods = list_to_dict(_descriptor['methods'])
+            _events = list_to_dict(_descriptor['events'])
+            _properties = list_to_dict(_descriptor['properties'])
             for _prop in _descriptor['blockProperties']:
                 if _prop['name'] in _properties:
                     _properties[_prop['name']].update(_prop)
@@ -214,8 +216,6 @@ def _load_component_types():
                     _properties[_prop['name']] = _prop
                     _prop['editorType'] = None
                     _prop['defaultValue'] = None
-            _properties = list(_properties.values())
-            _properties.sort(key=lambda x: x['name'])
             _component = Screen if _descriptor == 'Form' else \
                 ComponentType(_descriptor['name'], _methods, _events, _properties)
             _component.type = _descriptor['type']
