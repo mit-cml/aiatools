@@ -182,7 +182,7 @@ def has_descendant(target=None):
     return ComputedAttribute(checkDescendant)
 
 
-def root_block(block):
+def _root_block(block):
     """
     Looks up the root of the stack of blocks containing the given ``block``.
 
@@ -202,6 +202,9 @@ def root_block(block):
     while block.logical_parent:
         block = block.logical_parent
     return block
+
+
+root_block = ComputedAttribute(_root_block)
 
 
 class HeightAttribute(Functor):
