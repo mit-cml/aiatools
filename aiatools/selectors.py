@@ -38,7 +38,7 @@ class AggregateOperations:
             >>> project.blocks(top_level).count(group_by=type)
             {'component_event': 2}
             >>> project.blocks().count(group_by=(type, mutation.component_type))
-            {('component_event', 'Map'): 1, ('component_method', 'Map'): 2, ('component_event', 'Button'): 1, ('component_set_get', 'Marker'): 4}
+            {('component_event', 'Button'): 1, ('component_method', 'Map'): 2, ('component_event', 'Map'): 1, ('component_set_get', 'Marker'): 4}
 
         :param group_by: If given, a :py:class:`~aiatools.algebra.Functor` or tuple thereof, the value(s) of which
             will be used to group the entities in the collection for counting.
@@ -150,9 +150,9 @@ class AggregateOperations:
             >>> project.blocks(type == component_event).min(height)
             2
             >>> project.blocks(category == Components).min(height, group_by=type)
-            {'component_method': 1, 'component_set_get': 1, 'component_event': 2}
+            {'component_event': 2, 'component_method': 1, 'component_set_get': 1}
             >>> project.blocks().min(height, group_by=(type, mutation.component_type))
-            {('component_event', 'Map'): 6, ('component_method', 'Map'): 1, ('component_event', 'Button'): 2, ('component_set_get', 'Marker'): 1}
+            {('component_event', 'Button'): 2, ('component_method', 'Map'): 1, ('component_event', 'Map'): 6, ('component_set_get', 'Marker'): 1}
 
         :param func: The function to apply to the enetities in the collection for which the minimum will be computed.
         :type func: aiatools.algebra.Functor or callable

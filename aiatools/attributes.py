@@ -34,7 +34,7 @@ class NamedAttribute(Functor):
     Retrieve any Form entities in the project:
 
         >>> project.components(NamedAttribute('type') == Form)
-        [Screen(u'Screen1')]
+        [Screen('Screen1')]
 
     Parameters
     __________
@@ -243,7 +243,7 @@ class DepthAttribute(Functor):
     Get the depth of all leaves in the project.
 
         >>> project.blocks(leaf).map(depth)
-        [4, 4, 5, 5, 5, 5, 5, 6, 2, 2, 4]
+        [2, 2, 4, 4, 4, 6, 5, 5, 5, 5, 5]
     """
     def __init__(self):
         self.precomputed = {}
