@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>aiatools.selectors &mdash; AIA Tools 0.1.2 documentation</title>
+  <title>aiatools.selectors &mdash; AIA Tools 0.1.3 documentation</title>
   
 
   
@@ -159,11 +159,11 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 
-<span class="kn">from</span> <span class="nn">aiatools.algebra</span> <span class="k">import</span> <span class="n">Expression</span><span class="p">,</span> <span class="n">AndExpression</span><span class="p">,</span> <span class="n">identity</span>
-<span class="kn">from</span> <span class="nn">aiatools.common</span> <span class="k">import</span> <span class="n">Block</span><span class="p">,</span> <span class="n">Component</span><span class="p">,</span> <span class="n">ComponentType</span><span class="p">,</span> <span class="n">FilterableDict</span><span class="p">,</span> <span class="n">RecursiveIterator</span>
-<span class="kn">from</span> <span class="nn">aiatools.block_types</span> <span class="k">import</span> <span class="n">procedures_defnoreturn</span><span class="p">,</span> <span class="n">procedures_defreturn</span><span class="p">,</span> <span class="n">procedures_callnoreturn</span><span class="p">,</span> \
+<span class="kn">from</span> <span class="nn">aiatools.algebra</span> <span class="kn">import</span> <span class="n">Expression</span><span class="p">,</span> <span class="n">AndExpression</span><span class="p">,</span> <span class="n">identity</span>
+<span class="kn">from</span> <span class="nn">aiatools.common</span> <span class="kn">import</span> <span class="n">Block</span><span class="p">,</span> <span class="n">Component</span><span class="p">,</span> <span class="n">ComponentType</span><span class="p">,</span> <span class="n">FilterableDict</span><span class="p">,</span> <span class="n">RecursiveIterator</span>
+<span class="kn">from</span> <span class="nn">aiatools.block_types</span> <span class="kn">import</span> <span class="n">procedures_defnoreturn</span><span class="p">,</span> <span class="n">procedures_defreturn</span><span class="p">,</span> <span class="n">procedures_callnoreturn</span><span class="p">,</span> \
     <span class="n">procedures_callreturn</span>
-<span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">reduce</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">reduce</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s1">&#39;Evan W. Patton &lt;ewpatton@mit.edu&gt;&#39;</span>
 
@@ -345,7 +345,7 @@
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="kc">True</span></div>
 
-    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">raise</span> <span class="bp">NotImplemented</span><span class="p">()</span></div>
 
 
@@ -354,7 +354,7 @@
 <span class="sd">    :py:class:`Selectors` is a mixin class for collections that enables selecting entities related to entities in the</span>
 <span class="sd">    collection.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
         <span class="k">pass</span>
 
 <div class="viewcode-block" id="Selectors.screens"><a class="viewcode-back" href="../../aiatools.html#aiatools.component_types.Selectors.screens">[docs]</a>    <span class="k">def</span> <span class="nf">screens</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
@@ -531,7 +531,7 @@
         <span class="k">return</span> <span class="n">Selector</span><span class="p">({</span><span class="n">obj</span><span class="o">.</span><span class="n">id</span><span class="p">:</span> <span class="n">obj</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">test</span> <span class="ow">or</span> <span class="n">test</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="bp">self</span>
                          <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">RecursiveIterator</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="n">order_type</span><span class="p">(</span><span class="n">match</span><span class="p">),</span> <span class="n">test</span><span class="p">,</span> <span class="n">skip_failures</span><span class="p">)})</span></div>
 
-    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">raise</span> <span class="bp">NotImplemented</span><span class="p">()</span></div>
 
 
@@ -557,13 +557,13 @@
 <span class="sd">    collection : collections.Iterable[{id}] or dict[{id}]</span>
 <span class="sd">        A collection of objects</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collection</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collection</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Selector</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">collection</span><span class="p">,</span> <span class="s1">&#39;__iter__&#39;</span><span class="p">):</span>
             <span class="n">collection</span> <span class="o">=</span> <span class="n">NamedCollection</span><span class="p">({</span><span class="n">collection</span><span class="o">.</span><span class="n">id</span><span class="p">:</span> <span class="n">collection</span><span class="p">})</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_collection</span> <span class="o">=</span> <span class="n">collection</span>
 
-    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">_filter</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="kc">True</span>
         <span class="n">subset</span> <span class="o">=</span> <span class="n">NamedCollection</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_collection</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
@@ -571,7 +571,7 @@
                 <span class="n">subset</span><span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">item</span>
         <span class="k">return</span> <span class="n">Selector</span><span class="p">(</span><span class="n">subset</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="n">i</span> <span class="o">=</span> <span class="n">item</span> <span class="k">if</span> <span class="n">item</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">item</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
@@ -585,16 +585,16 @@
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">NamedCollection</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_collection</span>
 
-    <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Cannot modify read-only collection&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_collection</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
 
 <div class="viewcode-block" id="Selector.values"><a class="viewcode-back" href="../../aiatools.html#aiatools.component_types.Selector.values">[docs]</a>    <span class="k">def</span> <span class="nf">values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -603,30 +603,30 @@
 <div class="viewcode-block" id="Selector.items"><a class="viewcode-back" href="../../aiatools.html#aiatools.component_types.Selector.items">[docs]</a>    <span class="k">def</span> <span class="nf">items</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_collection</span><span class="o">.</span><span class="n">items</span><span class="p">())</span></div>
 
-    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="p">)))</span></div>
 
 
 <div class="viewcode-block" id="PrefixedSelector"><a class="viewcode-back" href="../../aiatools.html#aiatools.component_types.PrefixedSelector">[docs]</a><span class="k">class</span> <span class="nc">PrefixedSelector</span><span class="p">(</span><span class="n">Selector</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">collection</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">collection</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">PrefixedSelector</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">collection</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">=</span> <span class="n">prefix</span>
 
-    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">PrefixedSelector</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">/</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="p">,</span> <span class="n">item</span><span class="p">))</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="c1"># Fallback to non-prefixed implementation</span>
             <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">PrefixedSelector</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">PrefixedSelector</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__contains__</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">/</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="p">,</span> <span class="n">item</span><span class="p">))</span> <span class="ow">or</span> \
             <span class="nb">super</span><span class="p">(</span><span class="n">PrefixedSelector</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__contains__</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_collection</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
 
 <div class="viewcode-block" id="PrefixedSelector.iteritems"><a class="viewcode-back" href="../../aiatools.html#aiatools.component_types.PrefixedSelector.iteritems">[docs]</a>    <span class="k">def</span> <span class="nf">iteritems</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -641,7 +641,7 @@
 
 
 <div class="viewcode-block" id="NamedCollection"><a class="viewcode-back" href="../../aiatools.html#aiatools.component_types.NamedCollection">[docs]</a><span class="k">class</span> <span class="nc">NamedCollection</span><span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="n">AggregateOperations</span><span class="p">,</span> <span class="n">Selectors</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">functor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">functor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        :param functor:</span>
@@ -655,7 +655,7 @@
                 <span class="n">functor</span> <span class="o">=</span> <span class="n">functor</span> <span class="o">&amp;</span> <span class="n">args</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">NamedCollectionView</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">functor</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">Expression</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">NamedCollectionView</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
@@ -665,12 +665,12 @@
 
 
 <div class="viewcode-block" id="NamedCollectionView"><a class="viewcode-back" href="../../aiatools.html#aiatools.component_types.NamedCollectionView">[docs]</a><span class="k">class</span> <span class="nc">NamedCollectionView</span><span class="p">(</span><span class="n">AggregateOperations</span><span class="p">,</span> <span class="n">Selectors</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">functor</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">functor</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">NamedCollectionView</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">functor</span> <span class="o">=</span> <span class="n">functor</span>
 
-    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">parent</span><span class="p">,</span> <span class="n">functor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">functor</span>
 
         <span class="k">if</span> <span class="n">functor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -689,17 +689,17 @@
 <div class="viewcode-block" id="NamedCollectionView.filter"><a class="viewcode-back" href="../../aiatools.html#aiatools.component_types.NamedCollectionView.filter">[docs]</a>    <span class="k">def</span> <span class="nf">filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rule</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span> <span class="k">if</span> <span class="n">rule</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">NamedCollectionView</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rule</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="p">)))</span></div>
 
 
 <div class="viewcode-block" id="UnionSelector"><a class="viewcode-back" href="../../aiatools.html#aiatools.component_types.UnionSelector">[docs]</a><span class="k">class</span> <span class="nc">UnionSelector</span><span class="p">(</span><span class="n">AggregateOperations</span><span class="p">,</span> <span class="n">Selectors</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collection</span><span class="p">,</span> <span class="n">field</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collection</span><span class="p">,</span> <span class="n">field</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">UnionSelector</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">collection</span> <span class="o">=</span> <span class="n">collection</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">field</span> <span class="o">=</span> <span class="n">field</span>
 
-    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">field</span><span class="p">):</span>
                 <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">field</span><span class="p">):</span>
@@ -719,7 +719,7 @@
                 <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">child</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                     <span class="k">yield</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span></div>
 
-    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">functor</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
@@ -730,7 +730,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">Selector</span><span class="p">({</span><span class="n">v</span><span class="o">.</span><span class="n">id</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="k">if</span> <span class="n">functor</span><span class="p">(</span><span class="n">v</span><span class="p">)})</span>
 
-    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="n">i</span> <span class="o">=</span> <span class="n">item</span> <span class="k">if</span> <span class="n">item</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">item</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
@@ -752,7 +752,7 @@
                                 <span class="k">return</span> <span class="n">u</span>
         <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="p">)))</span></div>
 
 
@@ -798,7 +798,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../',
-            VERSION:'0.1.2',
+            VERSION:'0.1.3',
             LANGUAGE:'en',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',

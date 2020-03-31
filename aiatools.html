@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>aiatools package &mdash; AIA Tools 0.1.2 documentation</title>
+  <title>aiatools package &mdash; AIA Tools 0.1.3 documentation</title>
   
 
   
@@ -403,7 +403,7 @@ value.</td>
 <p><a class="reference internal" href="#aiatools.algebra.EquivalenceExpression" title="aiatools.algebra.EquivalenceExpression"><code class="xref py py-class docutils literal notranslate"><span class="pre">EquivalenceExpression</span></code></a> compares the output of two expressions for equivalent values, however == is
 defined on those values. An EquivalenceExpression is typically constructed by using the == operator on an existing
 pair of expressions, for example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">aiatools.attributes</span> <span class="k">import</span> <span class="n">name</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">aiatools.attributes</span> <span class="kn">import</span> <span class="n">name</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;Button1&#39;</span>
 <span class="go">NamedAttributeTuple((&#39;name&#39;, &#39;instance_name&#39;)) == &#39;Button1&#39;</span>
 </pre></div>
@@ -435,7 +435,7 @@ pair of expressions, for example:</p>
 <dd><p>Bases: <a class="reference internal" href="#aiatools.algebra.Functor" title="aiatools.algebra.Functor"><code class="xref py py-class docutils literal notranslate"><span class="pre">aiatools.algebra.Functor</span></code></a></p>
 <p><code class="xref py py-class docutils literal notranslate"><span class="pre">ComposedAttribute</span></code> is a <a class="reference internal" href="#aiatools.algebra.Functor" title="aiatools.algebra.Functor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Functor</span></code></a> that wraps other Functors, Python functions, or lambda
 expressions. Functions are evaluated from left to right.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">aiatools</span> <span class="k">import</span> <span class="o">*</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">aiatools</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">isinstance</span><span class="p">(</span><span class="n">root_block</span><span class="p">(</span><span class="n">declaration</span><span class="p">),</span> <span class="n">FunctionComposition</span><span class="p">)</span>
 <span class="go">True</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">proctest</span> <span class="o">=</span> <span class="n">AIAFile</span><span class="p">(</span><span class="s1">&#39;test_aias/ProcedureTest2.aia&#39;</span><span class="p">)</span>
@@ -470,7 +470,7 @@ further computation.</p>
 handl side of the expression is greater than the value of the right hand expression, for the definition of the
 greater than operation on the two values. A GreaterThanExpression is typically constructed by using the &gt; operator
 on an existing pair of expressions, for example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">aiatools.attributes</span> <span class="k">import</span> <span class="n">version</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">aiatools.attributes</span> <span class="kn">import</span> <span class="n">version</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">version</span> <span class="o">&gt;</span> <span class="mi">5</span>
 <span class="go">NamedAttribute(&#39;version&#39;) &gt; 5</span>
 </pre></div>
@@ -491,7 +491,7 @@ on an existing pair of expressions, for example:</p>
 side of the expression is less than the value of the right hand expression, for the definition of the less than
 operation on the two values. A LessThanExpression is typically constructed by using the &lt; operator on an existing
 pair of expressions, for example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">aiatools.attributes</span> <span class="k">import</span> <span class="n">version</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">aiatools.attributes</span> <span class="kn">import</span> <span class="n">version</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">version</span> <span class="o">&lt;</span> <span class="mi">5</span>
 <span class="go">NamedAttribute(&#39;version&#39;) &lt; 5</span>
 </pre></div>
@@ -511,7 +511,7 @@ pair of expressions, for example:</p>
 <p><a class="reference internal" href="#aiatools.algebra.NonequivalenceExpression" title="aiatools.algebra.NonequivalenceExpression"><code class="xref py py-class docutils literal notranslate"><span class="pre">NonequivalenceExpression</span></code></a> compares the output of two expressions for nonequivalent values, however != is
 defined on those values. A NonequivalenceExpression is typically constructed by using the != operator on an existing
 pair of expressions, for example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">aiatools.attributes</span> <span class="k">import</span> <span class="n">name</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">aiatools.attributes</span> <span class="kn">import</span> <span class="n">name</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">name</span> <span class="o">!=</span> <span class="s1">&#39;Button1&#39;</span>
 <span class="go">NamedAttributeTuple((&#39;name&#39;, &#39;instance_name&#39;)) != &#39;Button1&#39;</span>
 </pre></div>
@@ -528,7 +528,7 @@ NotExpressions are typically instantiated by using the unary prefix operator ~ t
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p>NotExpression will optimize its own inversion so that two operators will cancel one another out. For example:</p>
-<div class="last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">aiatools.attributes</span> <span class="k">import</span> <span class="n">disabled</span>
+<div class="last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">aiatools.attributes</span> <span class="kn">import</span> <span class="n">disabled</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="o">~</span><span class="n">disabled</span>
 <span class="go">~NamedAttribute(&#39;disabled&#39;)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="o">~~</span><span class="n">disabled</span>
@@ -4133,7 +4133,7 @@ allows one to select a specific component for further exploration
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'0.1.2',
+            VERSION:'0.1.3',
             LANGUAGE:'en',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
