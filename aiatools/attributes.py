@@ -199,6 +199,8 @@ def _root_block(block):
     Block
         The block at the root of the block stack containing ``block``.
     """
+    if not block:
+        return block
     while block.logical_parent:
         block = block.logical_parent
     return block
