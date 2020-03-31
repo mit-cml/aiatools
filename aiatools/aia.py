@@ -12,6 +12,7 @@ The :py:mod:`aiatools.aia` package provides the :py:class:`AIAFile` class for re
 
 import logging
 import jprops
+import os
 from os.path import isdir, join
 from zipfile import ZipFile
 from .selectors import Selector, NamedCollection, UnionSelector
@@ -192,7 +193,7 @@ class AIAFile(object):
         self.assets = []
         asset_path = join(self.filename, 'assets')
         src_path = join(self.filename, 'src')
-        for name in self._listfiles:
+        for name in self._listfiles():
             if name.startswith(asset_path):
                 self.assets.append(AIAAsset(None, name))
                 # TODO(ewpatton): Need to load extension JSON to extend language model
@@ -202,7 +203,7 @@ class AIAFile(object):
                     with open('%s.scm' % name, 'r') as form, open('%s.bky' % name, 'r') as blocks:
                         screen = Screen(form=form, blocks=blocks)
                         self._screens[screen.name] = screen
-            elif name.endswith('project.properties', encoding='utf-8'):
+            elif name.endswith('project.properties'):
                 with open(name, 'r') as prop_file:
                     self.properties = jprops.load_properties(prop_file)
             else:
