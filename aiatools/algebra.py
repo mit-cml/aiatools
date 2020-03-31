@@ -16,6 +16,42 @@ def _reduce_expression(expr, op):
     return expr
 
 
+def identity(x):
+    """
+    Helper function that returns its input.
+
+    >>> identity("string")
+    'string'
+    >>> identity(True)
+    True
+    >>> identity(None)
+
+    :param x: any value
+    :return: x
+    """
+    return x
+
+
+def needs_eval(x):
+    """
+    Tests whether its input needs ot be evaluated.
+
+    >>> needs_eval(Expression())
+    True
+    >>> needs_eval(Atom())
+    False
+
+    :param x: the input expression
+    :type x: Expression|callable
+    :return:
+    """
+    if isinstance(x, Expression):
+        return not isinstance(x, Atom)
+    elif isinstance(x, collections.Callable):
+        return True
+    return False
+
+
 class Expression(object):
     """
     Base interface for constructing expressions over App Inventor projects.
@@ -296,7 +332,9 @@ class Functor(Expression):
     functions to entities. Unlike most expressions, these typically compute non-Boolean values that may then undergo
     further computation.
     """
-    def __call__(self, *args, **kwargs):
+    def __call__(self, obj, *args, **kwargs):
+        if needs_eval(obj):
+            return FunctionComposition(self, obj)
         raise NotImplemented()
 
 
@@ -317,6 +355,36 @@ class Collection(Atom):
         return Collection(list(filter(args[0], self.collection)))
 
 
+class FunctionComposition(Functor):
+    """
+    :py:class:`ComposedAttribute` is a :py:class:`Functor` that wraps other Functors, Python functions, or lambda
+    expressions. Functions are evaluated from left to right.
+
+        >>> from aiatools import *
+        >>> isinstance(root_block(declaration), FunctionComposition)
+        True
+        >>> proctest = AIAFile('test_aias/ProcedureTest2.aia')
+        >>> proctest.blocks(is_procedure).callers(root_block(declaration)).map(fields.PROCNAME)
+        ['i_am_called']
+
+    Parameters
+    ----------
+    *args
+        Functions to compose into a new function
+    """
+    def __init__(self, *args):
+        self.functors = list(args) + [identity]
+
+    def __call__(self, obj, *args, **kwargs):
+        if needs_eval(obj):
+            self.functors = [obj] + self.functors
+            return self
+        else:
+            for op in self.functors:
+                obj = op(obj)
+            return obj
+
+
 class ComputedAttribute(Functor):
     """
     :py:class:`ComputedAttribute` is a :py:class:`Functor` that wraps a Python function or lambda expression. This
@@ -333,6 +401,8 @@ class ComputedAttribute(Functor):
         self.functor = functor
 
     def __call__(self, obj, *args, **kwargs):
+        if needs_eval(obj):
+            return FunctionComposition(self, obj)
         return self.functor(obj, *args, **kwargs)
 
     def __hash__(self):
