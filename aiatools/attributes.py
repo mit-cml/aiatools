@@ -16,7 +16,7 @@ projects.
 
 from aiatools.algebra import ComputedAttribute
 from .algebra import Functor, NotExpression
-from .common import Block
+from .common import Block, BlockKind
 from .selectors import select
 import collections
 
@@ -337,6 +337,17 @@ type = NamedAttributeTuple(('type', 'component_type'))
 name = NamedAttributeTuple(('name', 'instance_name'))
 """Returns the name of the entity."""
 
+
+def _kind(block):
+    try:
+        return block.kind
+    except AttributeError:
+        return None
+
+
+kind = NamedAttribute("kind")
+"""Returns the kind of the entity."""
+
 external = NamedAttribute('external')
 """Returns true if the component is an extension."""
 
@@ -461,8 +472,18 @@ Returns True if the entity is a leaf in the tree (i.e., it has no children).
 .. doctest::
 
     >>> project.blocks(leaf).count(group_by=type)
-    {'text': 3, 'color_blue': 2, 'lexical_variable_get': 6}
+    {'text': 3, 'lexical_variable_get': 6, 'color_blue': 2}
 """
+
+declaration = (type == 'component_event') | (type == 'global_declaration') | is_procedure
+"""
+"""
+
+statement = kind == BlockKind.STATEMENT
+"""
+"""
+
+value = kind == BlockKind.VALUE
 
 """
 .. testcleanup::

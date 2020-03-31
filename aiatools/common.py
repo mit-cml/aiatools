@@ -14,6 +14,7 @@ class.
 
 from .algebra import Atom
 from functools import reduce
+from enum import IntEnum, Enum
 
 
 __author__ = 'Evan W. Patton <ewpatton@mit.edu>'
@@ -150,6 +151,29 @@ class Block(object):
                 block.next = child_block
         return block
 
+    @property
+    def return_type(self):
+        if self.type == 'component_method':
+            from aiatools import component_types
+            type = getattr(component_types, self.mutation['component_type'])
+            assert(isinstance(type, ComponentType))
+            return type.methods[self.mutation['method_name']].return_type
+        return None
+
+    @property
+    def kind(self):
+        from aiatools import block_types
+        type = getattr(block_types, self.type)
+        if type.kind == BlockKind.MUTATION:
+            if self.type == 'component_set_get':
+                return BlockKind.VALUE if self.mutation['set_or_get'] == 'get' else BlockKind.STATEMENT
+            elif self.type == 'component_method':
+                return BlockKind.VALUE if self.return_type is not None else BlockKind.STATEMENT
+            else:
+                raise ValueError('Unknown type ' + self.type)
+        else:
+            return type.kind
+
     def children(self):
         return reduce(list.__add__, iter(self.values.values()), []) + \
                reduce(list.__add__, iter(self.statements.values()), [])
@@ -196,21 +220,31 @@ class Block(object):
     # """)
 
 
+class BlockKind(Atom, Enum):
+    DECLARATION = 1
+    STATEMENT = 2
+    VALUE = 3
+    MUTATION = 4
+
+
 class BlockType(Atom):
-    def __init__(self, name, category):
+    def __init__(self, name, category, kind):
         """
 
         :param name:
         :type name: str
         :param category:
         :type category: BlockCategory
+        :param kind:
+        :type kind: BlockKind
         """
         self.name = name
         self.category = category
+        self.kind = kind
         category.add_type(self)
 
     def __repr__(self):
-        return 'BlockType(%r, %r)' % (self.name, self.category)
+        return 'BlockType(%r, %r, %r)' % (self.name, self.category, self.kind)
 
     def __call__(self, *args, **kwargs):
         return self.name
