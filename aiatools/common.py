@@ -14,7 +14,7 @@ class.
 
 from .algebra import Atom
 from functools import reduce
-from enum import IntEnum, Enum
+from enum import Enum
 
 
 __author__ = 'Evan W. Patton <ewpatton@mit.edu>'
