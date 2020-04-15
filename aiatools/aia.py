@@ -11,12 +11,15 @@ The :py:mod:`aiatools.aia` package provides the :py:class:`AIAFile` class for re
 """
 
 import logging
-import jprops
 import os
+from io import StringIO
 from os.path import isdir, join
 from zipfile import ZipFile
-from .selectors import Selector, NamedCollection, UnionSelector
+
+import jprops
+
 from .component_types import Screen
+from .selectors import Selector, NamedCollection, UnionSelector
 
 __author__ = 'Evan W. Patton <ewpatton@mit.edu>'
 
@@ -197,10 +200,11 @@ class AIAFile(object):
             if name.startswith(asset_path):
                 self.assets.append(AIAAsset(None, name))
                 # TODO(ewpatton): Need to load extension JSON to extend language model
-            elif name.startswith(src_path):
+            elif name.startswith(src_path) or name.endswith('.scm') or name.endswith('.bky'):
                 if name.endswith('.scm'):
                     name = name[:-4]
-                    with open('%s.scm' % name, 'r') as form, open('%s.bky' % name, 'r') as blocks:
+                    bky_handle = open('%s.bky' % name) if os.path.exists('%s.bky' % name) else StringIO('<xml/>')
+                    with open('%s.scm' % name, 'r') as form, bky_handle as blocks:
                         screen = Screen(form=form, blocks=blocks)
                         self._screens[screen.name] = screen
             elif name.endswith('project.properties'):
