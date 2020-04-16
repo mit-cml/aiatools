@@ -161,7 +161,8 @@ class Screen(ComponentContainer):
             blocks_content = blocks
         else:
             blocks_content = None if blocks is None else blocks.read()
-        xml_root = None if blocks is None else ETree.fromstring(blocks_content)
+        blocks_content = blocks_content if blocks_content and len(blocks_content) > 0 else None
+        xml_root = None if blocks_content is None else ETree.fromstring(blocks_content)
         if xml_root is not None:
             for child in xml_root:
                 if child.tag.endswith('yacodeblocks'):

@@ -64,9 +64,11 @@ class AIAFile(object):
     ----------
     filename : basestring | file
         A string or file-like containing the contents of an App Inventor project.
+    strict : bool, optional
+        Process the AIAFile in strict mode, i.e., if a blocks file is missing then it is an error. Default: false
     """
 
-    def __init__(self, filename):
+    def __init__(self, filename, strict=False):
         if not isinstance(filename, str) or (not isdir(filename) and filename[-4:] == '.aia'):
             self.zipfile = ZipFile(filename)
         else:
@@ -141,9 +143,9 @@ class AIAFile(object):
         """
 
         if self.zipfile:
-            self._process_zip()
+            self._process_zip(strict)
         else:
-            self._process_dir()
+            self._process_dir(strict)
 
     def close(self):
         if self.zipfile:
@@ -166,7 +168,7 @@ class AIAFile(object):
 
         return names
 
-    def _process_zip(self):
+    def _process_zip(self, strict):
         """
         Processes the contents of an AIA file into Python objects for further operation.
         """
@@ -179,7 +181,13 @@ class AIAFile(object):
                 if name.endswith('.scm'):
                     name = name[:-4]
                     form = self.zipfile.open('%s.scm' % name, 'r')
-                    blocks = self.zipfile.open('%s.bky' % name, 'r')
+                    try:
+                        blocks = self.zipfile.open('%s.bky' % name, 'r')
+                    except KeyError as e:
+                        if strict:
+                            raise e
+                        else:
+                            blocks = None  # older aia without a bky file
                     screen = Screen(form=form, blocks=blocks)
                     self._screens[screen.name] = screen
             elif name.endswith('project.properties'):
@@ -188,7 +196,7 @@ class AIAFile(object):
             else:
                 log.warning('Ignoring file in AIA: %s' % name)
 
-    def _process_dir(self):
+    def _process_dir(self, strict):
         """
         Processes the contents of a directory as if it were an AIA file and converts the content into Python objects
         for further operation.
@@ -203,6 +211,8 @@ class AIAFile(object):
             elif name.startswith(src_path) or name.endswith('.scm') or name.endswith('.bky'):
                 if name.endswith('.scm'):
                     name = name[:-4]
+                    if strict and not os.path.exists('%s.bky' % name):
+                        raise IOError('Did not find expected blocks file %s.bky' % name)
                     bky_handle = open('%s.bky' % name) if os.path.exists('%s.bky' % name) else StringIO('<xml/>')
                     with open('%s.scm' % name, 'r') as form, bky_handle as blocks:
                         screen = Screen(form=form, blocks=blocks)
