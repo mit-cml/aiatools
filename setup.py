@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 
 from setuptools import setup, find_packages
+from aiatools import __version__
 
 with open('README.md') as f:
     long_description = f.read()
 
 setup(name='aiatools',
-      version='0.1.5',
+      version=__version__,
       description='Tools for extracting information from App Inventor AIA files',
       long_description=long_description,
       long_description_content_type="text/markdown",
