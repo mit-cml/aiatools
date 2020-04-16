@@ -90,7 +90,7 @@ numfig = True
 autodoc_default_flags = ['inherited-members']
 # napoleon_include_special_with_doc = True
 
-intersphinx_mapping = {'python': ('https://docs.python.org/2.7', None)}
+intersphinx_mapping = {'python': ('https://docs.python.org/3.4', None)}
 
 # -- Options for HTML output ----------------------------------------------
 
