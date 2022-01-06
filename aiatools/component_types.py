@@ -133,27 +133,33 @@ class Screen(ComponentContainer):
         self.ya_version = None
         self.blocks_version = None
         if form is not None:
+            form_json = None
             if isinstance(form, str):
                 form_json = json.loads(form)
             else:
                 form_contents = [line.decode('utf-8') if hasattr(line, 'decode') else line for line in form.readlines()]
-                if form_contents[1] != '$JSON\n' and form_contents[1] != b'$JSON\n':
-                    raise RuntimeError('Unknown Screen format: %s' % form_contents[1])
-                form_json = json.loads(form_contents[2])
+                if len(form_contents) > 2:
+                    if form_contents[1] != '$JSON\n' and form_contents[1] != b'$JSON\n':
+                        raise RuntimeError('Unknown Screen format: %s' % form_contents[1])
+                    form_json = json.loads(form_contents[2])
 
-            self.name = name or form_json['Properties']['$Name']
+            self.name = name or (form_json is not None and form_json['Properties']['$Name'])
             super(Screen, self).__init__(parent=None,
-                                         uuid=form_json['Properties']['Uuid'],
+                                         uuid=('0' if form_json is None else form_json['Properties']['Uuid']),
                                          type=Form,
                                          name=self.name,
-                                         version=form_json['Properties']['$Version'],
+                                         version=(None if form_json is None else form_json['Properties']['$Version']),
                                          components=components)
-            self._process_components_json(form_json['Properties']['$Components']
-                                          if '$Components' in form_json['Properties'] else [])
-            self.properties = {
-                key: value for key, value in form_json.items() if key not in Component._DISALLOWED_KEYS
-            }
-            self.ya_version = int(form_json['YaVersion'])
+            if form_json:
+                self._process_components_json(form_json['Properties']['$Components']
+                                              if '$Components' in form_json['Properties'] else [])
+                self.properties = {
+                    key: value for key, value in form_json.items() if key not in Component._DISALLOWED_KEYS
+                }
+                self.ya_version = int(form_json['YaVersion'])
+            else:
+                self.properties = {}
+                self.ya_version = None
         else:
             super(Screen, self).__init__(None, '0', Form, name or 'Screen1', '20', components=components)
         self.id = self.name
