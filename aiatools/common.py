@@ -146,6 +146,8 @@ class Block(object):
         for child in xml:
             if child.tag == 'mutation' or child.tag == _html('mutation'):
                 block.mutation = dict(child.attrib)
+                block.mutation.update(extra_mutations)
+                extra_mutations = {}
                 if type.startswith('component_') and ('is_generic' not in block.mutation or
                                                       block.mutation['is_generic'] == 'false'):
                     block.component = screen.components[block.mutation['instance_name']]
@@ -170,6 +172,8 @@ class Block(object):
                 child_block = Block.from_xml(screen, child[0], lang_ver, siblings=siblings, parent=block,
                                              connection_type='next')
                 block.next = child_block
+        if len(extra_mutations) > 0:  # mutations were not consumed, so we're missing a <mutation> tag
+            block.mutation = extra_mutations
         return block
 
     @property
