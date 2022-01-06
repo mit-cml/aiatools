@@ -35,7 +35,7 @@ def _html(tag):
 # noinspection PyShadowingBuiltins
 class Block(object):
     _CATEGORIES = {'color', 'component', 'controls', 'global', 'lexical', 'lists', 'local', 'logic', 'math',
-                   'obfuscated', 'dictionaries', 'procedures', 'text', 'pair'}
+                   'obfuscated', 'dictionaries', 'procedures', 'text', 'pair', 'helpers'}
     _CATEGORY_MAP = {
         'color': 'Colors',
         'component': 'Components',
@@ -51,7 +51,8 @@ class Block(object):
         'dictionaries': 'Dictionaries',
         'pair': 'Dictionaries',
         'procedures': 'Procedures',
-        'text': 'Text'
+        'text': 'Text',
+        'helpers': 'Helpers'
     }
     _ID_COUNT = 0
 
