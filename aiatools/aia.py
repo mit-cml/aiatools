@@ -69,7 +69,9 @@ class AIAFile(object):
     """
 
     def __init__(self, filename, strict=False):
-        if not isinstance(filename, str) or (not isdir(filename) and filename[-4:] == '.aia'):
+        if filename is None:
+            self.zipfile = None
+        elif not isinstance(filename, str) or (not isdir(filename) and filename[-4:] == '.aia'):
             self.zipfile = ZipFile(filename)
         else:
             self.zipfile = None
@@ -144,7 +146,7 @@ class AIAFile(object):
 
         if self.zipfile:
             self._process_zip(strict)
-        else:
+        elif filename is not None:
             self._process_dir(strict)
 
     def close(self):
