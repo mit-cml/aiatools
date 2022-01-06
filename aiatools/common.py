@@ -89,23 +89,42 @@ class Block(object):
         if id is None:
             id = Block._ID_COUNT
             Block._ID_COUNT += 1
+        if type == 'procedures_do_then_return':
+            type = 'controls_do_then_return'
+        elif type == 'procedure_lexical_variable_get':
+            type = 'lexical_variable_get'
+        elif type == 'for_lexical_variable_get':
+            type = 'lexical_variable_get'
         type_parts = type.split('_')
-        if type_parts[0] not in Block._CATEGORIES and lang_ver < 17:
+        extra_mutations = {}
+        if type_parts[0] not in Block._CATEGORIES and (lang_ver is None or lang_ver < 17):
             # likely old-format blocks code with component names in block types
-            if type_parts[0] in screen.components:
+            component = screen.components(lambda x: x.name == type_parts[0])
+            if len(component) > 0:
+                extra_mutations['instance_name'] = type_parts[0]
+                extra_mutations['component_type'] = component[0].type.name
                 if type_parts[1] == 'setproperty':
                     # Old-style property setter
                     type = 'component_set_get'
+                    extra_mutations['property_name'] = type_parts[1]
+                    extra_mutations['set_or_get'] = 'set'
                 elif type_parts[1] == 'getproperty':
                     # Old-style property getter
                     type = 'component_set_get'
+                    extra_mutations['property_name'] = type_parts[1]
+                    extra_mutations['set_or_get'] = 'get'
                 elif len(xml) >= 2 and xml[1].tag == 'statement' and 'name' in xml[1].attrib and \
                         xml[1].attrib['name'] == 'DO':
                     # Old-style event handler
                     type = 'component_event'
+                    extra_mutations['event_name'] = type_parts[1]
                 else:
                     # Old-style method call
                     type = 'component_method'
+                    extra_mutations['method_name'] = type_parts[1]
+            elif type_parts[0] == 'obsufcated':
+                type_parts = ['obfuscated', 'text']
+                type = '_'.join(type_parts)
             else:
                 raise RuntimeError('Unknown block type: %s' % type_parts[0])
         block = Block(id, type)
