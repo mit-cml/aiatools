@@ -4,7 +4,10 @@
 """
 aiatools.algebra defines the expressions and evaluation rules for querying the contents of AIA files.
 """
-import collections
+try:
+    from collections.abc import Callable
+except ImportError:
+    from collections import Callable
 
 
 __author__ = 'Evan W. Patton <ewpatton@mit.edu>'
@@ -47,7 +50,7 @@ def needs_eval(x):
     """
     if isinstance(x, Expression):
         return not isinstance(x, Atom)
-    elif isinstance(x, collections.Callable):
+    elif isinstance(x, Callable):
         return True
     return False
 
@@ -134,8 +137,8 @@ class BinaryExpression(Expression):
         The right hand side of the binary expression.
     """
     def __init__(self, left, right):
-        self.left = ComputedAttribute(left) if isinstance(left, collections.Callable) and not isinstance(left, Expression) else left
-        self.right = ComputedAttribute(right) if isinstance(right, collections.Callable) and not isinstance(right, Expression) else right
+        self.left = ComputedAttribute(left) if isinstance(left, Callable) and not isinstance(left, Expression) else left
+        self.right = ComputedAttribute(right) if isinstance(right, Callable) and not isinstance(right, Expression) else right
 
     def __call__(self, operand, *args, **kwargs):
         raise NotImplementedError
@@ -284,7 +287,7 @@ class NotExpression(Expression):
         The expression to negate.
     """
     def __init__(self, expr):
-        self.expr = ComputedAttribute(expr) if isinstance(expr, collections.Callable) and not isinstance(expr, Expression) else expr
+        self.expr = ComputedAttribute(expr) if isinstance(expr, Callable) and not isinstance(expr, Expression) else expr
 
     def __call__(self, operand, *args, **kwargs):
         return not (self.expr(operand) if isinstance(self.expr, Expression) else self.expr)
