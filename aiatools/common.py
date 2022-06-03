@@ -12,12 +12,16 @@ cases, users will not construct these objects directly but rather through use of
 class.
 """
 
+import re
 from .algebra import Atom
 from functools import reduce
 from enum import Enum
 
 
 __author__ = 'Evan W. Patton <ewpatton@mit.edu>'
+
+
+NAMESPACE = re.compile('\\{[^}]+}')
 
 
 def _html(tag):
@@ -152,6 +156,11 @@ class Block(object):
                 if type.startswith('component_') and ('is_generic' not in block.mutation or
                                                       block.mutation['is_generic'] == 'false'):
                     block.component = screen.components[block.mutation['instance_name']]
+                for grandchild in child:
+                    tag = '.' + NAMESPACE.sub('', grandchild.tag)
+                    if tag not in block.mutation:
+                        block.mutation[tag] = []
+                    block.mutation[tag].append(dict(grandchild.attrib))
             elif child.tag == 'comment' or child.tag == _html('comment'):
                 block.comment = child.text
             elif child.tag in {'field', 'title', _html('field'), _html('title')}:
