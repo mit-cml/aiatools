@@ -213,6 +213,16 @@ class Block(object):
         return reduce(list.__add__, iter(self.values.values()), []) + \
                reduce(list.__add__, iter(self.statements.values()), [])
 
+    def has_mutation(self, name):
+        """
+        Tests whether the block has a given mutation.
+
+        :param str name: the name of the mutation to test
+        :return: True if the mutation is present on the block, otherwise False
+        :rtype: bool
+        """
+        return False if self.mutation is None else (name in self.mutation)
+
     def __repr__(self):
         return '%s(%r, %r)' % (self.__class__.__name__, self.id, self.type)
 
