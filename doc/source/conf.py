@@ -57,7 +57,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'AIA Tools'
-copyright = '2016-2020 Evan W. Patton'
+copyright = '2016-2023 Evan W. Patton'
 author = 'Evan W. Patton'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -65,7 +65,7 @@ author = 'Evan W. Patton'
 # built documents.
 #
 # The short X.Y version.
-version = '0.1'
+version = '0.4'
 # The full version, including alpha/beta/rc tags.
 release = aiatools.__version__
 
