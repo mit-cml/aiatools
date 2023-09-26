@@ -471,6 +471,10 @@ class Extension(ComponentType):
     def __init__(self, *args, **kwargs):
         super(Extension, self).__init__(*args, **kwargs)
         self.external = True
+        self.project = None
+
+    def __repr__(self):
+        return '<extension %s>' % self.type
 
 
 class Component(object):

@@ -11,6 +11,7 @@ The :py:mod:`aiatools.aia` package provides the :py:class:`AIAFile` class for re
 """
 
 import logging
+import json
 import os
 from io import StringIO
 from os.path import isdir, join
@@ -18,7 +19,7 @@ from zipfile import ZipFile
 
 import jprops
 
-from .component_types import Screen
+from .component_types import Screen, component_from_descriptor
 from .selectors import Selector, NamedCollection, UnionSelector
 
 __author__ = 'Evan W. Patton <ewpatton@mit.edu>'
@@ -144,6 +145,9 @@ class AIAFile(object):
         :type: aiatools.selectors.Selector[aiatools.common.Block]
         """
 
+        self._extensions = NamedCollection()
+        self.extensions = Selector(self._extensions)
+
         if self.zipfile:
             self._process_zip(strict)
         elif filename is not None:
@@ -175,10 +179,23 @@ class AIAFile(object):
         Processes the contents of an AIA file into Python objects for further operation.
         """
         self.assets = []
+        processed_components = set()
         for name in self.zipfile.namelist():
             if name.startswith('assets/'):
-                self.assets.append(AIAAsset(self, name))
-                # TODO(ewpatton): Need to load extension JSON to extend language model
+                if name.startswith('assets/external_comps/'):
+                    package_name = name.split('/')[2]
+                    if package_name in processed_components:
+                        continue
+                    if name.endswith('components.json'):  # V2 extension
+                        components_json = json.load(self.zipfile.open(name))
+                        self._process_extension(components_json)
+                        processed_components.add(package_name)
+                    elif name.endswith('component.json'):  # V1 extension
+                        components_json = json.load(self.zipfile.open(name, 'r'))
+                        self._process_extension([components_json])
+                        processed_components.add(package_name)
+                else:
+                    self.assets.append(AIAAsset(self, name))
             elif name.startswith('src/'):
                 if name.endswith('.scm'):
                     name = name[:-4]
@@ -190,7 +207,7 @@ class AIAFile(object):
                             raise e
                         else:
                             blocks = None  # older aia without a bky file
-                    screen = Screen(form=form, blocks=blocks)
+                    screen = Screen(form=form, blocks=blocks, project=self)
                     self._screens[screen.name] = screen
             elif name.endswith('project.properties'):
                 with self.zipfile.open(name) as prop_file:
@@ -205,11 +222,27 @@ class AIAFile(object):
         """
         self.assets = []
         asset_path = join(self.filename, 'assets')
+        external_comps = join(asset_path, 'external_comps')
         src_path = join(self.filename, 'src')
+        processed_components = set()
         for name in self._listfiles():
             if name.startswith(asset_path):
-                self.assets.append(AIAAsset(None, name))
-                # TODO(ewpatton): Need to load extension JSON to extend language model
+                if name.startswith(external_comps):
+                    package_name = os.path.split(name[len(external_comps) + 1:])[0]
+                    if package_name in processed_components:
+                        continue
+                    if name.endswith('components.json'):  # V2 extension
+                        with open(name, 'r') as f:
+                            components_json = json.load(f)
+                        self._process_extension(components_json)
+                        processed_components.add(package_name)
+                    elif name.endswith('component.json'):  # V1 extension
+                        with open(name, 'r') as f:
+                            components_json = json.load(f)
+                        self._process_extension([components_json])
+                        processed_components.add(package_name)
+                else:
+                    self.assets.append(AIAAsset(None, name))
             elif name.startswith(src_path) or name.endswith('.scm') or name.endswith('.bky'):
                 if name.endswith('.scm'):
                     name = name[:-4]
@@ -217,7 +250,7 @@ class AIAFile(object):
                         raise IOError('Did not find expected blocks file %s.bky' % name)
                     bky_handle = open('%s.bky' % name) if os.path.exists('%s.bky' % name) else StringIO('<xml/>')
                     with open('%s.scm' % name, 'r') as form, bky_handle as blocks:
-                        screen = Screen(form=form, blocks=blocks)
+                        screen = Screen(form=form, blocks=blocks, project=self)
                         self._screens[screen.name] = screen
             elif name.endswith('project.properties'):
                 with open(name, 'r') as prop_file:
@@ -225,3 +258,8 @@ class AIAFile(object):
             else:
                 log.warning('Ignoring file in directory: %s' % name)
 
+    def _process_extension(self, descriptors: list[dict]):
+        for descriptor in descriptors:
+            component = component_from_descriptor(descriptor)
+            component.project = self
+            self._extensions[component.name] = component

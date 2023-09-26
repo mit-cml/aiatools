@@ -16,7 +16,7 @@ projects.
 
 from aiatools.algebra import ComputedAttribute
 from .algebra import Functor, NotExpression
-from .common import Block, BlockKind
+from .common import Block, BlockKind, Component
 from .selectors import select
 try:
     from collections.abc import Callable
@@ -353,7 +353,20 @@ def _kind(block):
 kind = NamedAttribute("kind")
 """Returns the kind of the entity."""
 
-external = NamedAttribute('external')
+
+def _compute_external(x: Component | Block):
+    if isinstance(x, Component):
+        return x.type.external
+    elif isinstance(x, Block):
+        if x.has_mutation('component_type'):
+            comp_typename = x.mutation['component_type']
+            comp_type = x.screen.project.extensions[comp_typename]
+            return comp_type.external if comp_type else False
+    else:
+        return False  # Cannot determine externality of unknown object
+
+
+external = ComputedAttribute(_compute_external)
 """Returns true if the component is an extension."""
 
 version = NamedAttribute('version')

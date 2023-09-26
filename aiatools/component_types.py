@@ -124,7 +124,7 @@ class Screen(ComponentContainer):
     blocks : string | file, optional
         A pathname, string, or file-like that contains a Screen's Blocks (.bky) file.
     """
-    def __init__(self, name=None, components=None, form=None, blocks=None):
+    def __init__(self, name=None, components=None, form=None, blocks=None, project=None):
         self.uuid = 0
         self.name = name
         self.path = name
@@ -132,6 +132,7 @@ class Screen(ComponentContainer):
         self._blocks = NamedCollection()
         self.ya_version = None
         self.blocks_version = None
+        self.project = project
         if form is not None:
             form_json = None
             if isinstance(form, str):
@@ -205,6 +206,45 @@ def list_to_dict(iterable, key='name'):
     return {i[key]: i for i in iterable}
 
 
+container_types = {
+    'Canvas',
+    'Chart',
+    'FeatureCollection',
+    'Form',
+    'Map',
+    'HorizontalArrangement',
+    'HorizontalScrollArrangement',
+    'TableArrangement'
+    'VerticalArrangement',
+    'VerticalScrollArrangement'
+}
+
+
+def component_from_descriptor(descriptor: dict) -> ComponentType:
+    methods = list_to_dict(descriptor['methods'])
+    events = list_to_dict(descriptor['events'])
+    properties = list_to_dict(descriptor['properties'])
+    for prop in descriptor['blockProperties']:
+        if prop['name'] in properties:
+            properties[prop['name']].update(prop)
+        else:
+            properties[prop['name']] = prop
+            prop['editorType'] = None
+            prop['defaultValue'] = None
+    external = descriptor['external'] == 'true'
+    cls = Extension if external else ComponentType
+    component = cls(descriptor['name'], methods, events, properties)
+    component.type = descriptor['type']
+    component.external = external
+    component.version = int(descriptor['version'])
+    component.category_string = descriptor['categoryString']
+    component.help_string = descriptor['helpString']
+    component.show_on_palette = bool(descriptor['showOnPalette'])
+    component.visible = not bool(descriptor['nonVisible'])
+    component.icon_name = descriptor['iconName']
+    return component
+
+
 def _load_component_types():
     """
     Loads the descriptions of App Inventor components from simple_components.json and populates the module with
@@ -213,26 +253,7 @@ def _load_component_types():
     with open(pkg_resources.resource_filename('aiatools', 'simple_components.json')) as _f:
         _component_descriptors = json.load(_f)
         for _descriptor in _component_descriptors:
-            _methods = list_to_dict(_descriptor['methods'])
-            _events = list_to_dict(_descriptor['events'])
-            _properties = list_to_dict(_descriptor['properties'])
-            for _prop in _descriptor['blockProperties']:
-                if _prop['name'] in _properties:
-                    _properties[_prop['name']].update(_prop)
-                else:
-                    _properties[_prop['name']] = _prop
-                    _prop['editorType'] = None
-                    _prop['defaultValue'] = None
-            _component = Screen if _descriptor == 'Form' else \
-                ComponentType(_descriptor['name'], _methods, _events, _properties)
-            _component.type = _descriptor['type']
-            _component.external = bool(_descriptor['external'])
-            _component.version = int(_descriptor['version'])
-            _component.category_string = _descriptor['categoryString']
-            _component.help_string = _descriptor['helpString']
-            _component.show_on_palette = bool(_descriptor['showOnPalette'])
-            _component.visible = not bool(_descriptor['nonVisible'])
-            _component.icon_name = _descriptor['iconName']
+            _component = component_from_descriptor(_descriptor)
             globals()[_component.name] = _component
             Component.TYPES[_component.name] = _component
 
