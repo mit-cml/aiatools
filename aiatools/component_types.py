@@ -120,7 +120,7 @@ class Screen(ComponentContainer):
     components : list[Component], optional
         A list of immediate components that are the children of the screen.
     form : string | file, optional
-        A pathanme, string, or file-like that contains a Screen's Scheme (.scm) file.
+        A pathname, string, or file-like that contains a Screen's Scheme (.scm) file.
     blocks : string | file, optional
         A pathname, string, or file-like that contains a Screen's Blocks (.bky) file.
     """
