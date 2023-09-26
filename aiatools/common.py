@@ -454,6 +454,18 @@ class ComponentType(Atom):
     def __str__(self):
         return self.name
 
+    def __hash__(self):
+        return hash(self.name)
+
+    def __eq__(self, other):
+        if isinstance(other, ComponentType):
+            if self.type is None or other.type is None:
+                return self.name == other.name
+            else:
+                return self.type == other.type
+        else:
+            return super(ComponentType, self).__eq__(other)
+
 
 class Extension(ComponentType):
     def __init__(self, *args, **kwargs):
