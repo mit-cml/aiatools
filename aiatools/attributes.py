@@ -354,7 +354,7 @@ kind = NamedAttribute("kind")
 """Returns the kind of the entity."""
 
 
-def _compute_external(x: Component | Block):
+def _compute_external(x):
     if isinstance(x, Component):
         return x.type.external
     elif isinstance(x, Block):
