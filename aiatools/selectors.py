@@ -458,6 +458,9 @@ class Selector(AggregateOperations, Selectors):
     def __len__(self):
         return len(list(iter(self)))
 
+    def __eq__(self, other):
+        return set(iter(self)) == set(iter(other))
+
 
 class PrefixedSelector(Selector):
     def __init__(self, prefix, collection):
