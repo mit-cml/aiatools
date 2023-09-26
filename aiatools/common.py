@@ -317,13 +317,14 @@ class BlockCategory(Atom):
 
 class Method(Atom):
     # noinspection PyPep8Naming
-    def __init__(self, name, description, deprecated, params, returnType=None):
+    def __init__(self, name, description, deprecated, params, returnType=None, continuation=False):
         self.name = name
         self.description = description
         if isinstance(deprecated, str):
             self.deprecated = deprecated == 'true'
         else:
             self.deprecated = deprecated
+        self.continuation = continuation == 'true'
         self.params = [param if isinstance(param, Parameter) else Parameter(**param) for param in params]
         self.return_type = returnType
 
@@ -338,12 +339,14 @@ class Method(Atom):
 class Property(Atom):
     # noinspection PyPep8Naming
     def __init__(self, name, editorType=None, defaultValue=None, description=None, type=None, rw=None,
-                 deprecated=False, editorArgs=None, alwaysSend=False):
+                 deprecated=False, editorArgs=None, alwaysSend=False, category=None, helper=None):
         self.name = name
         self.type = type
         self.editor_type = editorType
         self.default_value = defaultValue
+        self.category = category
         self.description = description
+        self.helper = helper
         self.rw = rw
         if isinstance(deprecated, str):
             self.deprecated = deprecated == 'true'
@@ -378,9 +381,10 @@ class Event(Atom):
 
 
 class Parameter(Atom):
-    def __init__(self, name, type):
+    def __init__(self, name, type, helper=None):
         self.name = name
         self.type = type
+        self.helper = helper
 
     def __call__(self, *args, **kwargs):
         return self.name
