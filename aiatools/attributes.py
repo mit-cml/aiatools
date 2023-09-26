@@ -304,9 +304,6 @@ class _MutationHelper(Functor):
             _MutationHelper._interned[item] = _MutationHelper(item)
         return _MutationHelper._interned[item]
 
-    def __repr__(self):
-        return
-
 
 class _FieldHelper(Functor):
     """
