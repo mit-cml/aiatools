@@ -1,0 +1,224 @@
+[{
+  "name": "Alexa",
+  "version": "2",
+  "type": "Alexa",
+  "categoryString": "BUILT_IN",
+  "external": "false",
+  "helpString": "",
+  "showOnPalette": "false",
+  "nonVisible": "false",
+  "iconName": "static/images/alexa.png",
+  "properties": [{
+    "name": "SkillName",
+    "editorType": "ro-string",
+    "defaultValue": ""
+  },{
+    "name": "Target",
+    "editorType": "string",
+    "defaultValue": "Alexa Dot"
+  }],
+  "blockProperties": [{
+    "name": "SkillName",
+    "description": "The name used to reference the skill when communicating with Alexa.",
+    "rw": "invisible",
+    "type": "text",
+    "deprecated": "false",
+    "category": "Advanced"
+  }],
+  "methods": [],
+  "events": [{
+    "name": "Initialize",
+    "description": "Use the Initialize event to perform actions prior to responding to any intent.",
+    "deprecated": "false",
+    "params": []
+  }]
+  },{
+    "name": "Intent",
+    "version": "1",
+    "type": "Intent",
+    "categoryString": "BUILT_IN",
+    "external": "false",
+    "helpString": "Intents represent a single goal for the speaker, expressed through one or more utterances, such as the many ways one might express the idea \"Good Day.\"",
+    "showOnPalette": "true",
+    "nonVisible": "true",
+    "iconName": "images/intent.png",
+    "properties": [{
+      "name": "Utterances",
+      "editorType": "text_list",
+      "defaultValue": ""
+    },{
+      "name": "Confirmation Required",
+      "editorType": "boolean",
+      "defaultValue": "False"
+    },{
+      "name": "Confirmation Prompt",
+      "editorType": "text",
+      "defaultValue": ""
+    }],
+    "blockProperties": [{
+      "name": "Utterances",
+      "description": "Example phrases people can use to perform the intent.",
+      "type": "list",
+      "rw": "invisible",
+      "deprecated": "false",
+      "category": "Behavior"
+    },{
+      "name": "Confirmation Required",
+      "description" : "If checked, the user will be asked to confirm this is what they intended to do.",
+      "type": "boolean",
+      "rw": "invisible",
+      "deprecated": "false",
+      "category": "Advanced"
+    }, {
+      "name": "Confirmation Prompt",
+      "description": "The text to use to prompt the user if a confirmation is required.",
+      "type": "text",
+      "rw": "invisible",
+      "deprecated": "false",
+      "category": "Advanced"
+    },{
+      "name": "utterances",
+      "description": "The list of phrases people can use to trigger this Intent.",
+      "type": "list",
+      "rw": "write-only",
+      "deprecated": "true",
+      "category": "Behavior"
+    }],
+    "methods": [],
+    "events": [{
+      "name": "spoken",
+      "description": "Use the spoken event to process the input and respond accordingly.",
+      "params": [],
+      "deprecated": "false"
+    }]
+  },{
+    "name": "Slot",
+    "version": "2",
+    "type": "Slot",
+    "categoryString": "BUILT_IN",
+    "external": "false",
+    "helpString": "Slots capture information within an utterance that your skill can use to do further computation. You can think of them as a fill-in-the-blank in an utterance.",
+    "showOnPalette": "true",
+    "nonVisible": "true",
+    "iconName": "images/slot.png",
+    "properties": [{
+      "name": "SlotEditorUsed",
+      "editorType": "slot_editor",
+      "defaultValue": "SlotType"
+    }, {
+      "name": "SlotType",
+      "editorType": "slot_types",
+      "defaultValue": "AMAZON.SearchQuery"
+    }, {
+      "name": "alexaSlotType",
+      "editorType": "string",
+      "defaultValue": ""
+    }, {
+      "name": "customSlotType",
+      "editorType": "slot_custom",
+      "defaultValue": ""
+    }],
+    "blockProperties": [{
+      "name": "SlotEditorUsed",
+      "description": "Sets whether to use a built-in slot type or a custom slot type.",
+      "type": "text",
+      "rw": "invisible",
+      "deprecated": "false",
+      "category": "Advanced"
+    },{
+      "name": "SlotType",
+      "description": "The type of the content spoken for the slot, such as a Food or Animal.",
+      "type": "text",
+      "rw": "invisible",
+      "deprecated": "false",
+      "category": "Behavior"
+    },{
+      "name": "alexaSlotType",
+      "description": "The type of the content spoken for the slot, open to any defined Alexa type.",
+      "type": "text",
+      "rw": "invisible",
+      "deprecated": "false",
+      "category": "Behavior"
+    },{
+      "name": "customSlotType",
+      "description": "Define your own slot type using examples of that type.",
+      "type": "text",
+      "rw": "invisible",
+      "deprecated": "false",
+      "category": "Advanced"
+    },{
+      "name": "value",
+      "description": "The value of the slot, if it was filled by the user.",
+      "type": "text",
+      "rw": "read-only",
+      "deprecated": "false",
+      "category": "Behavior"
+    }, {
+      "name": "placeholder",
+      "description": "This block is no longer used.",
+      "type": "text",
+      "rw": "read-only",
+      "deprecated": "true",
+      "category": "Behavior"
+    }],
+    "methods": [],
+    "events": []
+  },{
+    "name": "CloudDB",
+    "version": "2",
+    "type": "AlexaCloudDB",
+    "categoryString": "ALEXA",
+    "external": "false",
+    "helpString": "Allows Alexa Skills to communicate with App Inventor using CloudDB.",
+    "showOnPalette": "true",
+    "nonVisible": "true",
+    "iconName": "images/cloudDB.png",
+    "properties": [
+      { "name": "ProjectID", "editorType": "string", "defaultValue": "", "editorArgs": []},
+      { "name": "RedisPort", "editorType": "integer", "defaultValue": "6381", "editorArgs": []},
+      { "name": "RedisServer", "editorType": "string", "defaultValue": "DEFAULT", "editorArgs": []},
+      { "name": "Token", "editorType": "string", "defaultValue": "", "editorArgs": []},
+      { "name": "UseSSL", "editorType": "boolean", "defaultValue": "True", "editorArgs": []}
+    ],
+    "blockProperties": [{
+      "name": "ProjectID",
+      "description": "The project bucket where your data are stored",
+      "type": "text",
+      "rw": "invisible",
+      "deprecated": "false",
+      "category": "Behavior"
+    },{
+      "name": "RedisPort",
+      "description": "The TCP port number used to connect to CloudDB",
+      "type": "number",
+      "rw": "invisible",
+      "deprecated": "false",
+      "category": "Advanced"
+    },{
+      "name": "RedisServer",
+      "description": "The domain name of the CloudDB server",
+      "type": "text",
+      "rw": "invisible",
+      "deprecated": "false",
+      "category": "Advanced"
+    },{
+      "name": "Token",
+      "description": "Authentication token for CloudDB",
+      "type": "text",
+      "rw": "invisible",
+      "deprecated": "false",
+      "category": "Advanced"
+    },{
+      "name": "UseSSL",
+      "description": "Enable to securely communicate with CloudDB",
+      "type": "boolean",
+      "rw": "invisible",
+      "deprecated": "false",
+      "category": "Advanced"
+    }],
+    "methods": [
+      { "name": "GetValue", "description": "Get the Value for a tag, and DOES returns the value", "deprecated": "false", "params": [{ "name": "tag", "type": "text"},{ "name": "valueIfTagNotThere", "type": "any"}], "returnType": "any"},
+      { "name": "StoreValue", "description": "Store a value at a tag.", "deprecated": "false", "params": [{ "name": "tag", "type": "text"},{ "name": "valueToStore", "type": "any"}]}
+    ],
+    "events": []
+}]

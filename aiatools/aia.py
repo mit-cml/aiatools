@@ -19,7 +19,7 @@ from zipfile import ZipFile
 
 import jprops
 
-from .component_types import Screen, component_from_descriptor
+from .component_types import Screen, Skill, component_from_descriptor
 from .selectors import Selector, NamedCollection, UnionSelector
 
 __author__ = 'Evan W. Patton <ewpatton@mit.edu>'
@@ -115,6 +115,23 @@ class AIAFile(object):
         :type: aiatools.selectors.Selector[aiatools.component_types.Screen]
         """
 
+        self._skills = NamedCollection()
+        self.skills = Selector(self._skills)
+        """
+        A :py:class:`~aiatools.selectors.Selector` over the components of type
+        :py:class:`~aiatools.component_types.Skill` in the project.
+
+        For example, if you want to know how many skills are in a project run:
+
+        .. doctest::
+
+            >>> with AIAFile('test_aias/HelloPurr.aia') as aia:
+            ...     len(aia.skills)
+            0
+
+        :type: aiatools.selectors.Selector[aiatools.component_types.Skill]
+        """
+
         self.components = UnionSelector(self._screens, 'components')
         """
         A :py:class:`~aiatools.selectors.Selector` over the component instances of all screens defined in the project.
@@ -207,8 +224,21 @@ class AIAFile(object):
                             raise e
                         else:
                             blocks = None  # older aia without a bky file
-                    screen = Screen(form=form, blocks=blocks, project=self)
+                    screen = Screen(design=form, blocks=blocks, project=self)
                     self._screens[screen.name] = screen
+            elif name.startswith('skills/'):
+                if name.endswith('.alexa'):
+                    name = name[:-6]
+                    skill = self.zipfile.open('%s.alexa' % name, 'r')
+                    try:
+                        blocks = self.zipfile.open('%s.abx' % name, 'r')
+                    except KeyError as e:
+                        if strict:
+                            raise e
+                        else:
+                            blocks = None
+                    alexa = Skill(design=skill, blocks=blocks, project=self)
+                    self._skills[alexa.name] = alexa
             elif name.endswith('project.properties'):
                 with self.zipfile.open(name) as prop_file:
                     self.properties = jprops.load_properties(prop_file)
@@ -250,7 +280,7 @@ class AIAFile(object):
                         raise IOError('Did not find expected blocks file %s.bky' % name)
                     bky_handle = open('%s.bky' % name) if os.path.exists('%s.bky' % name) else StringIO('<xml/>')
                     with open('%s.scm' % name, 'r') as form, bky_handle as blocks:
-                        screen = Screen(form=form, blocks=blocks, project=self)
+                        screen = Screen(design=form, blocks=blocks, project=self)
                         self._screens[screen.name] = screen
             elif name.endswith('project.properties'):
                 with open(name, 'r') as prop_file:

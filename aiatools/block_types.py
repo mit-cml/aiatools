@@ -30,6 +30,7 @@ Procedures = BlockCategory('Procedures')
 Dictionaries = BlockCategory('Dictionaries')
 # Components is plural to prevent collision with aiatools.common.Component
 Components = BlockCategory('Components')
+Voice = BlockCategory('Voice')
 
 # Control category blocks
 for _name, _kind in [
@@ -142,3 +143,12 @@ for _name in ['procedures_defnoreturn', 'procedures_defreturn', 'procedures_call
 for _name, _kind in [('component_event', DECL), ('component_method', MUT), ('component_set_get', MUT),
                      ('component_component_block', VAL)]:
     define_block_type(_name, Components, _kind)
+
+# Voice category blocks
+for _name, _kind in [('voice_say', STMT), ('voice_ask', STMT), ('voice_sound', STMT), ('voice_pause', STMT),
+                     ('voice_send_to_default_token', STMT), ('voice_get_from_default_token', VAL),
+                     ('voice_send_to_app_inv', STMT), ('voice_get_from_app_inv', VAL), ('voice_lstm', VAL),
+                     ('voice_lstm_length', VAL), ('voice_get_slot_value', VAL), ('languages', VAL),
+                     ('voice_aws_model', STMT), ('detect_dominant_language', STMT), ('translate_text', STMT),
+                     ('voice_ssml', STMT)]:
+    define_block_type(_name, Voice, _kind)

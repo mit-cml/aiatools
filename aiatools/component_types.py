@@ -106,7 +106,7 @@ class ComponentContainer(Component, Selectors):
     """)
 
 
-class Screen(ComponentContainer):
+class DesignerRoot(ComponentContainer):
     """
     The :py:class:`Screen` class provides a Python representation of an App Inventor Screen.
 
@@ -119,12 +119,12 @@ class Screen(ComponentContainer):
         The name of the screen.
     components : list[Component], optional
         A list of immediate components that are the children of the screen.
-    form : string | file, optional
+    design : string | file, optional
         A pathname, string, or file-like that contains a Screen's Scheme (.scm) file.
     blocks : string | file, optional
         A pathname, string, or file-like that contains a Screen's Blocks (.bky) file.
     """
-    def __init__(self, name=None, components=None, form=None, blocks=None, project=None):
+    def __init__(self, name=None, components=None, design=None, blocks=None, project=None, root_type=None):
         self.uuid = 0
         self.name = name
         self.path = name
@@ -133,36 +133,38 @@ class Screen(ComponentContainer):
         self.ya_version = None
         self.blocks_version = None
         self.project = project
-        if form is not None:
+        if design is not None:
             form_json = None
-            if isinstance(form, str):
-                form_json = json.loads(form)
+            if isinstance(design, str):
+                form_json = json.loads(design)
             else:
-                form_contents = [line.decode('utf-8') if hasattr(line, 'decode') else line for line in form.readlines()]
+                form_contents = [line.decode('utf-8') if hasattr(line, 'decode') else line for line in design.readlines()]
                 if len(form_contents) > 2:
                     if form_contents[1] != '$JSON\n' and form_contents[1] != b'$JSON\n':
                         raise RuntimeError('Unknown Screen format: %s' % form_contents[1])
                     form_json = json.loads(form_contents[2])
+                elif len(form_contents) == 1:  # Alexa support
+                    form_json = json.loads(form_contents[0])
 
             self.name = name or (form_json is not None and form_json['Properties']['$Name'])
-            super(Screen, self).__init__(parent=None,
-                                         uuid=('0' if form_json is None else form_json['Properties']['Uuid']),
-                                         type=Form,
-                                         name=self.name,
-                                         version=(None if form_json is None else form_json['Properties']['$Version']),
-                                         components=components)
+            super(DesignerRoot, self).__init__(parent=None,
+                                               uuid=('0' if form_json is None else form_json['Properties']['Uuid']),
+                                               type=root_type,
+                                               name=self.name,
+                                               version=(None if form_json is None else form_json['Properties']['$Version']),
+                                               components=components)
             if form_json:
                 self._process_components_json(form_json['Properties']['$Components']
                                               if '$Components' in form_json['Properties'] else [])
                 self.properties = {
                     key: value for key, value in form_json.items() if key not in Component._DISALLOWED_KEYS
                 }
-                self.ya_version = int(form_json['YaVersion'])
+                self.ya_version = int(form_json['AlexaVersion'] if 'AlexaVersion' in form_json else form_json['YaVersion'])
             else:
                 self.properties = {}
                 self.ya_version = None
         else:
-            super(Screen, self).__init__(None, '0', Form, name or 'Screen1', '20', components=components)
+            super(DesignerRoot, self).__init__(None, '0', root_type, name or 'Screen1', '20', components=components)
         self.id = self.name
         if isinstance(blocks, str):
             blocks_content = blocks
@@ -195,11 +197,24 @@ class Screen(ComponentContainer):
         for child in self._blocks.values():
             yield child
 
+    def __str__(self):
+        return self.name
+
+
+class Screen(DesignerRoot):
+    def __init__(self, name=None, components=None, design=None, blocks=None, project=None):
+        super(Screen, self).__init__(name, components, design, blocks, project, Form)
+
     def __repr__(self):
         return "Screen(%s)" % repr(self.name)
 
-    def __str__(self):
-        return self.name
+
+class Skill(DesignerRoot):
+    def __init__(self, name=None, components=None, design=None, blocks=None, project=None):
+        super(Skill, self).__init__(name, components, design, blocks, project, Alexa)
+
+    def __repr__(self):
+        return "Skill(%s)" % repr(self.name)
 
 
 def list_to_dict(iterable, key='name'):
@@ -245,17 +260,19 @@ def component_from_descriptor(descriptor: dict) -> ComponentType:
     return component
 
 
-def _load_component_types():
+def _load_component_types(filename, use_type=False):
     """
     Loads the descriptions of App Inventor components from simple_components.json and populates the module with
     instances of ComponentType for each known type.
     """
-    with open(pkg_resources.resource_filename('aiatools', 'simple_components.json')) as _f:
+    with open(pkg_resources.resource_filename('aiatools', filename)) as _f:
         _component_descriptors = json.load(_f)
         for _descriptor in _component_descriptors:
             _component = component_from_descriptor(_descriptor)
-            globals()[_component.name] = _component
-            Component.TYPES[_component.name] = _component
+            name = _component.type if use_type else _component.name
+            globals()[name] = _component
+            Component.TYPES[name] = _component
 
 
-_load_component_types()
+_load_component_types('simple_components.json')
+_load_component_types('alexa-devices.json', use_type=True)
