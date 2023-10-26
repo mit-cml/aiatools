@@ -41,6 +41,6 @@ setup(name='aiatools',
           'jprops>=2.0.2'
       ],
       package_data={
-          'aiatools': ['simple_components.json']
+          'aiatools': ['simple_components.json', 'alexa-devices.json']
       }
       )
