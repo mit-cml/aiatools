@@ -165,7 +165,7 @@ class Block(object):
             elif child.tag == 'comment' or child.tag == _html('comment'):
                 block.comment = child.text
             elif child.tag in {'field', 'title', _html('field'), _html('title')}:
-                block.fields[child.attrib['name']] = child.text
+                block.fields[child.attrib['name']] = child.text or ''
             elif child.tag == 'value' or child.tag == _html('value'):
                 block.inputs[child.attrib['name']] = block.values[child.attrib['name']] = []
                 child_block = Block.from_xml(screen, child[0], lang_ver, block.values[child.attrib['name']],
