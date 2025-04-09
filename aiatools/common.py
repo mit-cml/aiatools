@@ -24,6 +24,18 @@ __author__ = 'Evan W. Patton <ewpatton@mit.edu>'
 NAMESPACE = re.compile('\\{[^}]+}')
 
 
+def _blockly(tag):
+    """
+    Prefixes the given ``tag`` with the Blockly XML prefix. Block files saved with newer versions of App Inventor will
+    have this XML namespace prepended when read with the ETree framework.
+    :param tag: An XML element tag
+    :type tag: basestring
+    :return: A new string prefixed with the Blockly XML prefix.
+    :rtype: str or unicode
+    """
+    return '{https://developers.google.com/blockly/xml}' + tag
+
+
 def _html(tag):
     """
     Prefixes the given ``tag`` with the XHTML prefix. Block files saved with newer versions of App Inventor will have
@@ -150,7 +162,7 @@ class Block(object):
         if connection_type == 'value' or connection_type == 'statement':
             block.logically_disabled = block.disabled or parent.logically_disabled
         for child in xml:
-            if child.tag == 'mutation' or child.tag == _html('mutation'):
+            if child.tag == 'mutation' or child.tag == _html('mutation') or child.tag == _blockly('mutation'):
                 block.mutation = dict(child.attrib)
                 block.mutation.update(extra_mutations)
                 extra_mutations = {}
@@ -162,24 +174,24 @@ class Block(object):
                     if tag not in block.mutation:
                         block.mutation[tag] = []
                     block.mutation[tag].append(dict(grandchild.attrib))
-            elif child.tag == 'comment' or child.tag == _html('comment'):
+            elif child.tag == 'comment' or child.tag == _html('comment') or child.tag == _blockly('comment'):
                 block.comment = child.text
-            elif child.tag in {'field', 'title', _html('field'), _html('title')}:
+            elif child.tag in {'field', 'title', _html('field'), _html('title'), _blockly('field'), _blockly('title')}:
                 block.fields[child.attrib['name']] = child.text or ''
-            elif child.tag == 'value' or child.tag == _html('value'):
+            elif child.tag == 'value' or child.tag == _html('value') or child.tag == _blockly('value'):
                 block.inputs[child.attrib['name']] = block.values[child.attrib['name']] = []
                 child_block = Block.from_xml(screen, child[0], lang_ver, block.values[child.attrib['name']],
                                              parent=block, connection_type='value')
                 child_block.output = block
                 block.ordered_inputs.append(child_block)
-            elif child.tag == 'statement' or child.tag == _html('statement'):
+            elif child.tag == 'statement' or child.tag == _html('statement') or child.tag == _blockly('statement'):
                 block.inputs[child.attrib['name']] = block.statements[child.attrib['name']] = []
                 child_block = Block.from_xml(screen, child[0], lang_ver, block.statements[child.attrib['name']],
                                              parent=block, connection_type='statement')
                 block.ordered_inputs.append(child_block)
                 for child_block in block.statements[child.attrib['name']]:
                     child_block.logical_parent = block
-            elif child.tag == 'next' or child.tag == _html('next'):
+            elif child.tag == 'next' or child.tag == _html('next') or child.tag == _blockly('next'):
                 child_block = Block.from_xml(screen, child[0], lang_ver, siblings=siblings, parent=block,
                                              connection_type='next')
                 block.next = child_block
