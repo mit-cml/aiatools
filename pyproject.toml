@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+dynamic = ["version"]
+name = "aiatools"
+dependencies = ["jprops"]
+requires-python = ">= 3.0"
+authors = [
+  {name = "Evan W. Patton", email = "ewpatton@mit.edu" }
+]
+maintainers = [
+  {name = "Evan W. Patton", email = "ewpatton@mit.edu" }
+]
+description = "Tools for extracting information from App Inventor AIA files"
+readme = "README.md"
+license = "GPL-3.0-or-later"
+license-files = ["COPYING"]
+classifiers = [
+  'Development Status :: 3 - Alpha',
+  'Environment :: Console',
+  'Intended Audience :: Developers',
+  'Intended Audience :: Education',
+  'Intended Audience :: Science/Research',
+  'Natural Language :: English',
+  'Operating System :: OS Independent',
+  'Programming Language :: Python',
+  'Topic :: Education',
+  'Topic :: Scientific/Engineering :: Information Analysis',
+  'Topic :: Software Development',
+  'Topic :: Utilities'
+]
+keywords = ["App Inventor", "AIA extraction", "analysis", "toolkit"]
+
+[project.urls]
+Repository = "https://github.com/mit-cml/aiatools"
+
+[tool.setuptools]
+packages = ["aiatools"]
+
+[tool.setuptools.dynamic]
+version = {attr = "aiatools.__version__"}
