@@ -166,8 +166,10 @@ class Block(object):
                 block.mutation = dict(child.attrib)
                 block.mutation.update(extra_mutations)
                 extra_mutations = {}
-                if type.startswith('component_') and ('is_generic' not in block.mutation or
-                                                      block.mutation['is_generic'] == 'false'):
+                if type == 'component_all_component_block':
+                    pass
+                elif type.startswith('component_') and ('is_generic' not in block.mutation or
+                                                        block.mutation['is_generic'] == 'false'):
                     block.component = screen.components[block.mutation['instance_name']]
                 for grandchild in child:
                     tag = '.' + NAMESPACE.sub('', grandchild.tag)
