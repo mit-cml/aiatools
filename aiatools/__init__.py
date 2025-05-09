@@ -14,7 +14,7 @@ from aiatools.component_types import *
 from aiatools.selectors import *
 
 __author__ = 'Evan W. Patton <ewpatton@mit.edu>'
-__version__ = '0.6.1'
+__version__ = '0.6.2'
 
 
 def _aia_main():
