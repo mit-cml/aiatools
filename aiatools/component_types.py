@@ -18,6 +18,10 @@ from .common import *
 __author__ = 'Evan W. Patton <ewpatton@mit.edu>'
 
 
+# Restricted XML Characters
+restricted_chars = re.compile(r'[\x00-\x09\x0B-\x0C\x0E-\x1F\x7F-\x84\x86-\x9F]+')
+
+
 # noinspection PyShadowingBuiltins
 class ComponentContainer(Component, Selectors):
     """
@@ -170,6 +174,10 @@ class DesignerRoot(ComponentContainer):
             blocks_content = blocks
         else:
             blocks_content = None if blocks is None else blocks.read()
+            if isinstance(blocks_content, bytes):
+                blocks_content = blocks_content.decode('utf-8', errors='replace')
+        if blocks_content:
+            blocks_content = re.sub(restricted_chars, '', blocks_content)  # Strip out illegal XML chars
         blocks_content = blocks_content if blocks_content and len(blocks_content) > 0 else None
         xml_root = None if blocks_content is None else ETree.fromstring(blocks_content)
         if xml_root is not None:

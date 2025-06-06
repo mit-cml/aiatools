@@ -13,6 +13,7 @@ The :py:mod:`aiatools.aia` package provides the :py:class:`AIAFile` class for re
 import logging
 import json
 import os
+import sys
 from io import StringIO
 from os.path import isdir, join
 from zipfile import ZipFile
@@ -77,6 +78,7 @@ class AIAFile(object):
         else:
             self.zipfile = None
 
+        self.id = filename
         self.assets = []
         """
         A list of assets contained in the project.
@@ -293,3 +295,52 @@ class AIAFile(object):
             component = component_from_descriptor(descriptor)
             component.project = self
             self._extensions[component.name] = component
+
+
+class AIACollection(object):
+    def __init__(self, path):
+        super(AIACollection, self).__init__()
+        self.path = path
+        self.filenames = [join(dirname, filename) for dirname, dirs, files in os.walk(path)
+                          for filename in files if filename.endswith('.aia')]
+        self._projects = NamedCollection()
+        self.projects = Selector(self._projects)
+        self._open_files()
+
+    def _open_files(self):
+        opened_files = []
+        filename = None
+        try:
+            for filename in self.filenames:
+                with AIAFile(filename) as aia_file:
+                    opened_files.append(aia_file)
+                    self._projects[filename] = aia_file
+        except BaseException as e:
+            if filename:
+                log.error(f'Unable to read {filename}', exc_info=e)
+            raise e
+
+    def __repr__(self):
+        return 'AIACollection(%s)' % self.path
+
+    def close(self):
+        map(lambda x: x.close(), self._projects.values())
+
+    def __enter__(self):
+        entered_files = []
+        f = None
+        try:
+            for f in self._projects.values():
+                f.__enter__()
+                entered_files.append(f)
+        except BaseException as e:
+            if f:
+                log.error(f'Unable to read {f.filename}', exc_info=e)
+            for file in entered_files:
+                file.__exit__(type(e), e, None)
+            raise e
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        for file in self._projects.values():
+            file.__exit__(exc_type, exc_val, exc_tb)
