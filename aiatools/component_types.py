@@ -7,10 +7,9 @@ programmatically constructed during module compilation from the simple_component
 online development environment.
 """
 
+import importlib.resources
 import json
 import xml.etree.ElementTree as ETree
-
-import pkg_resources
 
 from aiatools.selectors import Selector, NamedCollection, Selectors
 from .common import *
@@ -273,7 +272,7 @@ def _load_component_types(filename, use_type=False):
     Loads the descriptions of App Inventor components from simple_components.json and populates the module with
     instances of ComponentType for each known type.
     """
-    with open(pkg_resources.resource_filename('aiatools', filename)) as _f:
+    with importlib.resources.files('aiatools').joinpath(filename).open('r') as _f:
         _component_descriptors = json.load(_f)
         for _descriptor in _component_descriptors:
             _component = component_from_descriptor(_descriptor)
