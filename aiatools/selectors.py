@@ -20,6 +20,44 @@ from functools import reduce
 __author__ = 'Evan W. Patton <ewpatton@mit.edu>'
 
 
+def _scope(item):
+    """
+    Name of the screen an entity belongs to, used to disambiguate entities whose ids collide.
+    """
+    if isinstance(item, Block):
+        return item.screen.name if item.screen is not None else None
+    node = item
+    while getattr(node, 'parent', None) is not None:
+        node = node.parent
+    return getattr(node, 'name', None)
+
+
+def _collect(items, value=None):
+    """
+    Build a :py:class:`NamedCollection` keyed by entity id.
+
+    Blockly block ids (and component Uuids) are only unique within a single screen, so a selection spanning several
+    screens can contain distinct entities that share an id. Keying by id alone would let later entities overwrite
+    earlier ones. Entities keep their plain id as key; only an entity whose id is already taken by a different entity
+    is keyed by ``(screen name, id)`` instead, so single-screen selections are unchanged.
+
+    Parameters
+    ----------
+    items : collections.Iterable
+        The entities to collect.
+    value : callable
+        Optional mapping from an entity to the value stored for it. Default: the entity itself.
+    """
+    out, owners = NamedCollection(), {}
+    for item in items:
+        key = item.id
+        if key in owners and owners[key] is not item:
+            key = (_scope(item), item.id)
+        owners[key] = item
+        out[key] = item if value is None else value(item)
+    return out
+
+
 class AggregateOperations:
     """
     :py:class:`AggregateOptions` is a mixin class that provides functionality for aggregation operations on selections.
@@ -244,7 +282,7 @@ class Selectors:
             - (ewpatton) Implement subset selection on components
         """
         test = identity if test is None else test
-        return Selector({item.id: item for item in self if (isinstance(item, Component) and test(item))})
+        return Selector(_collect(item for item in self if (isinstance(item, Component) and test(item))))
 
     def blocks(self, test=None, *args):
         """
@@ -260,7 +298,7 @@ class Selectors:
             - (ewpatton) Implement subset selection on blocks.
         """
         test = identity if test is None else test
-        return Selector({item.id: item for item in self if (isinstance(item, Block) and test(item))})
+        return Selector(_collect(item for item in self if (isinstance(item, Block) and test(item))))
 
     def callers(self, *args):
         """
@@ -282,11 +320,11 @@ class Selectors:
             - (ewpatton) Add call graph so that component method/event blocks can be included
         """
         _filter = args[0] if len(args) > 0 else lambda x: True
-        return Selector({block.id: block for item in self
-                         if item.type in (procedures_defreturn(), procedures_defnoreturn())
-                         for block in item.screen.blocks
-                         if block.type in (procedures_callnoreturn(), procedures_callreturn()) and
-                         block.fields['PROCNAME'] == item.fields['NAME'] and _filter(block)})
+        return Selector(_collect(block for item in self
+                                 if item.type in (procedures_defreturn(), procedures_defnoreturn())
+                                 for block in item.screen.blocks
+                                 if block.type in (procedures_callnoreturn(), procedures_callreturn()) and
+                                 block.fields['PROCNAME'] == item.fields['NAME'] and _filter(block)))
 
     def callees(self, *args, **kwargs):
         """
@@ -355,7 +393,7 @@ class Selectors:
             The subset of the selection. The exact contents of the subset depends on the type of content of the
             current selection.
         """
-        return Selector({item.id: selector(item) for item in self if selector(item) is not None})
+        return Selector(_collect((item for item in self if selector(item) is not None), selector))
 
     def descendants(self, test=None, order='natural', skip_failures=False):
         """
@@ -380,8 +418,9 @@ class Selectors:
         """
         def order_type(m):
             return order if order != 'natural' else ('depth' if isinstance(m, Block) else 'breadth')
-        return Selector({obj.id: obj if not test or test(obj) else None for match in self
-                         for obj in RecursiveIterator(match, order_type(match), test, skip_failures)})
+        return Selector(_collect((obj for match in self
+                                  for obj in RecursiveIterator(match, order_type(match), test, skip_failures)),
+                                 lambda obj: obj if not test or test(obj) else None))
 
     def __iter__(self):
         raise NotImplemented()
@@ -418,9 +457,9 @@ class Selector(AggregateOperations, Selectors):
     def __call__(self, *args, **kwargs):
         _filter = args[0] if len(args) == 1 else lambda x: True
         subset = NamedCollection()
-        for item in self._collection.values():
+        for key, item in self._collection.items():
             if _filter(item):
-                subset[item.id] = item
+                subset[key] = item  # keep existing keys so disambiguated entities stay distinct
         return Selector(subset)
 
     def __getitem__(self, item):
@@ -583,7 +622,7 @@ class UnionSelector(AggregateOperations, Selectors):
         if len(kwargs) > 0:
             pass
         else:
-            return Selector({v.id: v for v in iter(self) if functor(v)})
+            return Selector(_collect(v for v in iter(self) if functor(v)))
 
     def __getitem__(self, item):
         if isinstance(item, int):
